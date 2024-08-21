@@ -1,0 +1,21 @@
+{
+    "extends": "../tsconfig.json",
+    "include": [
+        "./api/**/*",
+        "./src/**/*"
+    ],
+    "compilerOptions": {
+        "composite": true,
+        "tsBuildInfoFile": "../node_modules/.tmp/backend/tsconfig.tsbuildinfo",
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "outDir": "../node_modules/.tmp/backend",
+        "lib": [
+            "ESNext"
+        ],
+        "types": [
+            "@cloudflare/workers-types"
+        ]
+    }
+}

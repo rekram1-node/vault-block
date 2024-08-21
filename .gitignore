@@ -1,0 +1,30 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+
+# testing
+/coverage
+
+# build artifacts
+dist/
+.wrangler/
+
+# misc
+.DS_Store
+*.pem
+
+# local env files
+# do not commit any .env files to git, except for the .env.example file. https://create.t3.gg/en/usage/env-variables#using-environment-variables
+.env
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# sqllite
+local/
+
+# misc
+.vscode/**
+

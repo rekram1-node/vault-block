@@ -1,28 +1,34 @@
 import { Toaster } from "sonner";
-import { Router } from "~/Router";
+import { useLocation } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient, trpc, trpcQueryClient } from "~/trpc/trpc";
+import { Router } from "~/Router";
+import { ThemeProvider } from "./components/ThemeProvider";
+import Navbar from "~/components/Navbar";
 
-function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <main className={""}>
-      <div className={"h-screen bg-background pt-16 font-sans antialiased"}>
-        {/* {!router.pathname.includes("/protected") && <Navbar />} */}
-        {children}
-      </div>
-    </main>
-  );
-}
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const [location] = useLocation();
+  console.log(import.meta.env);
 
-export function App() {
   return (
-    <trpc.Provider client={trpcQueryClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <Layout>
-          <Toaster />
-          <Router />
-        </Layout>
-      </QueryClientProvider>
-    </trpc.Provider>
+    <div className={"h-screen bg-background pt-16 font-sans antialiased"}>
+      {!location.includes("/protected") && <Navbar />}
+      {children}
+    </div>
   );
-}
+};
+
+export const App = () => {
+  return (
+    <ThemeProvider>
+      <trpc.Provider client={trpcQueryClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <Layout>
+            <Toaster />
+            <Router />
+          </Layout>
+        </QueryClientProvider>
+      </trpc.Provider>
+    </ThemeProvider>
+  );
+};

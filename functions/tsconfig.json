@@ -16,6 +16,6 @@
         ],
         "types": [
             "@cloudflare/workers-types"
-        ]
+        ],
     }
 }

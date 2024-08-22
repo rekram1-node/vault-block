@@ -12,7 +12,7 @@
     "db:migrate": "npx drizzle-kit migrate"
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.2.0",
+    "@hono/clerk-auth": "^2.0.0",
     "@hono/trpc-server": "^0.3.2",
     "@libsql/client": "^0.5.6",
     "@paralleldrive/cuid2": "^2.2.2",
@@ -21,10 +21,8 @@
     "@radix-ui/react-popover": "^1.0.7",
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
-    "@t3-oss/env-nextjs": "^0.7.1",
     "@tailwindcss/typography": "^0.5.12",
     "@trpc/client": "^10.43.6",
-    "@trpc/next": "^10.43.6",
     "@trpc/react-query": "^10.43.6",
     "@trpc/server": "^10.43.6",
     "argon2": "^0.31.2",
@@ -61,7 +59,6 @@
     "autoprefixer": "^10.4.14",
     "drizzle-kit": "^0.22.8",
     "eslint": "^8.54.0",
-    "eslint-config-next": "^14.0.4",
     "postcss": "^8.4.31",
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.7",

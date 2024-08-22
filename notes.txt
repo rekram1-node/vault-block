@@ -1,1 +1,19 @@
-try to deploy then build more....
+TODO:
+
+* Get Previous code all fully integrated
+* Deploy ensure all works as intended
+* Setup new auth solutions
+    - self roll?
+    - JWT tokens for Vaults << definitely self rolled
+* Prettify the look of the site
+* Setup limitations
+    - Ratelimiting with Cloudflare KV
+    - Size limitations of Vault
+    - Max # of Vaults
+* Event Driven updates??
+    - may not be necessary but does help prevent data loss...
+* Setup tests
+* Talk about it
+* Docs...
+* Buy domain 
+

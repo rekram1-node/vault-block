@@ -8,6 +8,11 @@ import { apiRouter } from "functions/src/router";
 
 const app = new Hono().basePath("/api").use(logger()).use(requestId());
 
+app.use("*", (c, next) => {
+  console.log(c.env.TURSO_DATABASE_URL);
+  return next();
+});
+
 app.use(
   "/trpc/*",
   trpcServer({

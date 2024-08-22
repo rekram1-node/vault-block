@@ -1,6 +1,6 @@
+import type { ApiRouter } from "../../functions/src/router";
 import { QueryClient } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink } from "@trpc/client";
-import type { ApiRouter } from "../../functions/src/router";
 import { createTRPCReact } from "@trpc/react-query";
 
 export const trpc = createTRPCReact<ApiRouter>();
@@ -21,6 +21,11 @@ export const queryClient = new QueryClient({
 });
 
 export const trpcQueryClient = trpc.createClient({
+  /**
+   * Links used to determine request flow from client to server.
+   *
+   * @see https://trpc.io/docs/links
+   */
   links: [
     loggerLink({
       enabled: (opts) =>

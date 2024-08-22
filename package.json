@@ -12,6 +12,7 @@
     "db:migrate": "npx drizzle-kit migrate"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.4.2",
     "@hono/clerk-auth": "^2.0.0",
     "@hono/trpc-server": "^0.3.2",
     "@libsql/client": "^0.5.6",

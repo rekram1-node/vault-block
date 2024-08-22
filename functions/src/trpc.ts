@@ -62,9 +62,17 @@ export const createTRPCContext = async (opts: FetchCreateContextFnOptions) => {
  * This is where the tRPC API is initialized, connecting the context and transformer.
  */
 import { initTRPC, TRPCError } from "@trpc/server";
-import { transformer } from "functions/src/transformer";
 import { getAuth } from "@hono/clerk-auth";
 import { ZodError } from "zod";
+
+/**
+ * If you need to add transformers for special data types like `Temporal.Instant` or `Temporal.Date`, `Decimal.js`, etc you can do so here.
+ * Make sure to import this file rather than `superjson` directly.
+ * @link https://github.com/blitz-js/superjson#recipes
+ */
+import superjson from "superjson";
+
+const transformer = superjson;
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer,

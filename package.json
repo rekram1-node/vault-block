@@ -12,8 +12,6 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
-    "@hono/oauth-providers": "^0.6.1",
-    "@hono/trpc-server": "^0.3.2",
     "@libsql/client": "^0.5.6",
     "@paralleldrive/cuid2": "^2.2.2",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
@@ -39,7 +37,6 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "sonner": "^1.5.0",
-    "superjson": "^2.2.1",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
     "vite-tsconfig-paths": "^5.0.1",

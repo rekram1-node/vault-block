@@ -8,12 +8,11 @@
     "dev:server": "vite build && wrangler pages dev --port 3001 --live-reload",
     "build": "vite build",
     "deploy": "wrangler pages deploy",
-    "db:generate": "npx drizzle-kit generate",
-    "db:migrate": "npx drizzle-kit migrate"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.4.2",
-    "@hono/clerk-auth": "^2.0.0",
+    "@hono/oauth-providers": "^0.6.1",
     "@hono/trpc-server": "^0.3.2",
     "@libsql/client": "^0.5.6",
     "@paralleldrive/cuid2": "^2.2.2",
@@ -23,9 +22,11 @@
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@tailwindcss/typography": "^0.5.12",
+    "@tanstack/react-query": "^5.52.2",
     "@trpc/client": "^10.43.6",
     "@trpc/react-query": "^10.43.6",
     "@trpc/server": "^10.43.6",
+    "@tsndr/cloudflare-worker-jwt": "^2.5.3",
     "argon2": "^0.31.2",
     "argon2-browser": "^1.18.0",
     "base64-loader": "^1.0.0",
@@ -33,6 +34,7 @@
     "clsx": "^2.1.0",
     "drizzle-orm": "^0.31.2",
     "hono": "^4.5.6",
+    "ky": "^1.7.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.368.0",
     "notistack": "^3.0.1",
@@ -45,7 +47,8 @@
     "tailwindcss-animate": "^1.0.7",
     "vite-tsconfig-paths": "^5.0.1",
     "wouter": "^3.3.1",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@types/eslint": "^8.44.7",

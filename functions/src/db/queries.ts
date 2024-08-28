@@ -1,9 +1,8 @@
+import { type drizzle } from "drizzle-orm/libsql";
 import { and, count, desc, eq } from "drizzle-orm";
-import { type DbType } from "./db";
-import {
-  type InsertEncryptedDocument,
-  encryptedDocumentsTable,
-} from "./schema";
+import { type InsertVault, vaultsTable } from "./schema";
+
+type DbType = ReturnType<typeof drizzle>;
 
 export class Queries {
   db: DbType;
@@ -12,16 +11,16 @@ export class Queries {
     this.db = db;
   }
 
-  async createEncryptedDocument(data: InsertEncryptedDocument) {
+  async createVault(data: InsertVault) {
     return getFirstElement(
-      this.db.insert(encryptedDocumentsTable).values(data).returning(),
+      this.db.insert(vaultsTable).values(data).returning(),
     );
   }
 
-  async activateEncryptedDocument(id: string, data: InitializeData) {
+  async activateVault(id: string, data: InitializeData) {
     return getFirstElement(
       this.db
-        .update(encryptedDocumentsTable)
+        .update(vaultsTable)
         .set({
           encryptedContent: Buffer.from(data.encryptedContent, "base64"),
           passwordHash: data.passwordHash,
@@ -30,31 +29,31 @@ export class Queries {
           iv: data.iv,
           documentSalt: data.documentSalt,
         })
-        .where(eq(encryptedDocumentsTable.id, id))
+        .where(eq(vaultsTable.id, id))
         .returning(),
     );
   }
 
-  async readAllEncryptedDocuments(userId: string) {
+  async readAllVaults(userId: string) {
     return this.db
       .select({
-        id: encryptedDocumentsTable.id,
-        name: encryptedDocumentsTable.name,
-        notionPageId: encryptedDocumentsTable.notionPageId,
+        id: vaultsTable.id,
+        name: vaultsTable.name,
+        notionPageId: vaultsTable.notionPageId,
       })
-      .from(encryptedDocumentsTable)
-      .where(eq(encryptedDocumentsTable.userId, userId))
-      .orderBy(desc(encryptedDocumentsTable.updated_at));
+      .from(vaultsTable)
+      .where(eq(vaultsTable.userId, userId))
+      .orderBy(desc(vaultsTable.updated_at));
   }
 
-  async readNumberOfEncryptedDocuments(userId: string) {
+  async readNumberOfVaults(userId: string) {
     const result = await getFirstElement(
       this.db
         .select({
           value: count(),
         })
-        .from(encryptedDocumentsTable)
-        .where(eq(encryptedDocumentsTable.userId, userId)),
+        .from(vaultsTable)
+        .where(eq(vaultsTable.userId, userId)),
     );
     return result?.value ?? 0;
   }
@@ -63,48 +62,42 @@ export class Queries {
     return getFirstElement(
       this.db
         .select({
-          passwordSalt: encryptedDocumentsTable.passwordSalt,
+          passwordSalt: vaultsTable.passwordSalt,
         })
-        .from(encryptedDocumentsTable)
-        .where(eq(encryptedDocumentsTable.id, id)),
+        .from(vaultsTable)
+        .where(eq(vaultsTable.id, id)),
     );
   }
 
-  async readEncryptedDocument(id: string) {
+  async readVault(id: string) {
     return getFirstElement(
       this.db
         .select({
-          name: encryptedDocumentsTable.name,
-          passwordHash: encryptedDocumentsTable.passwordHash,
-          encryptedContent: encryptedDocumentsTable.encryptedContent,
-          iv: encryptedDocumentsTable.iv,
-          documentSalt: encryptedDocumentsTable.documentSalt,
-          serverSidePasswordSalt:
-            encryptedDocumentsTable.serverSidePasswordSalt,
+          name: vaultsTable.name,
+          passwordHash: vaultsTable.passwordHash,
+          encryptedContent: vaultsTable.encryptedContent,
+          iv: vaultsTable.iv,
+          documentSalt: vaultsTable.documentSalt,
+          serverSidePasswordSalt: vaultsTable.serverSidePasswordSalt,
         })
-        .from(encryptedDocumentsTable)
-        .where(eq(encryptedDocumentsTable.id, id)),
+        .from(vaultsTable)
+        .where(eq(vaultsTable.id, id)),
     );
   }
 
-  async deleteEncryptedDocument(userId: string, id: string) {
+  async deleteVault(userId: string, id: string) {
     return this.db
-      .delete(encryptedDocumentsTable)
-      .where(
-        and(
-          eq(encryptedDocumentsTable.id, id),
-          eq(encryptedDocumentsTable.userId, userId),
-        ),
-      );
+      .delete(vaultsTable)
+      .where(and(eq(vaultsTable.id, id), eq(vaultsTable.userId, userId)));
   }
 
-  async updateEncryptedDocument(id: string, encryptedContent: Buffer) {
+  async updateVault(id: string, encryptedContent: Buffer) {
     return this.db
-      .update(encryptedDocumentsTable)
+      .update(vaultsTable)
       .set({
         encryptedContent: encryptedContent,
       })
-      .where(eq(encryptedDocumentsTable.id, id));
+      .where(eq(vaultsTable.id, id));
   }
 }
 

@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { ThemeToggle } from "~/components/novel/ThemeToggle";
+import { UserButton } from "~/components/UserButton";
 
 const Navbar = () => {
   return (
@@ -14,7 +15,7 @@ const Navbar = () => {
       </div>
       <div className="flex items-center space-x-5">
         <ThemeToggle />
-        {/* <UserButton /> */}
+        <UserButton />
       </div>
     </nav>
   );

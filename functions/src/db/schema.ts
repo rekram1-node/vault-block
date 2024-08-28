@@ -12,8 +12,8 @@ const createId = init({
   length: 32,
 });
 
-export const encryptedDocumentsTable = sqliteTable(
-  "encrypted_documents",
+export const vaultsTable = sqliteTable(
+  "vaults",
   {
     // automatically created
     id: text("id")
@@ -47,7 +47,5 @@ export const encryptedDocumentsTable = sqliteTable(
   },
 );
 
-export type InsertEncryptedDocument =
-  typeof encryptedDocumentsTable.$inferInsert;
-export type SelectEncryptedDocument =
-  typeof encryptedDocumentsTable.$inferSelect;
+export type InsertVault = typeof vaultsTable.$inferInsert;
+export type SelectVault = typeof vaultsTable.$inferSelect;

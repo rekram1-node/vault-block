@@ -1,9 +1,19 @@
-import { trpc } from "~/trpc/trpc";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "~/lib/query";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 export function Home() {
-  const q = trpc.hello.useQuery("1");
-  console.log(q.data);
+  const [, navigate] = useLocation();
+  const { data } = useQuery({
+    queryKey: [],
+    queryFn: async () => {
+      const res = await api.user.$get();
+      return await res.json();
+    },
+  });
+  console.log(data);
+
   return (
     <>
       <div className="flex h-full w-full justify-center pt-2">
@@ -13,7 +23,9 @@ export function Home() {
             <button onClick={() => toast("My first toast")}>
               Give me a toast
             </button>
+            <button onClick={() => navigate("/vault")}>Go To Vault</button>
           </div>
+          {"Hello: " + data?.userId}
         </div>
       </div>
     </>

@@ -1,4 +1,4 @@
-import { type Result, ok, error } from "functions/src/types/result";
+import { type Result, ok, error } from "shared/lib/result";
 
 export async function api<T>(
   url: string,

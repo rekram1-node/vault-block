@@ -38,7 +38,7 @@ export const factory = createFactory<Env>({
     app.use(async (c, next) => {
       const url = c.env.TURSO_DATABASE_URL?.trim();
       if (url === undefined) {
-        throw new Error("TURSO_URL env var is not defined");
+        throw new Error("TURSO_DATABASE_URL env var is not defined");
       }
 
       const authToken = c.env.TURSO_AUTH_TOKEN?.trim();

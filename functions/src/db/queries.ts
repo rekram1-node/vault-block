@@ -22,12 +22,11 @@ export class Queries {
       this.db
         .update(vaultsTable)
         .set({
-          encryptedContent: Buffer.from(data.encryptedContent, "base64"),
+          encryptedVaultData: data.encryptedVaultData,
+          vaultIv: data.vaultIv,
+          vaultSalt: data.vaultSalt,
           passwordHash: data.passwordHash,
           passwordSalt: data.passwordSalt,
-          serverSidePasswordSalt: data.serverSidePasswordSalt,
-          iv: data.iv,
-          documentSalt: data.documentSalt,
         })
         .where(eq(vaultsTable.id, id))
         .returning(),
@@ -75,10 +74,10 @@ export class Queries {
         .select({
           name: vaultsTable.name,
           passwordHash: vaultsTable.passwordHash,
-          encryptedContent: vaultsTable.encryptedContent,
-          iv: vaultsTable.iv,
-          documentSalt: vaultsTable.documentSalt,
-          serverSidePasswordSalt: vaultsTable.serverSidePasswordSalt,
+
+          encryptedVaultData: vaultsTable.encryptedVaultData,
+          vaultIv: vaultsTable.vaultIv,
+          vaultSalt: vaultsTable.vaultSalt,
         })
         .from(vaultsTable)
         .where(eq(vaultsTable.id, id)),
@@ -91,23 +90,23 @@ export class Queries {
       .where(and(eq(vaultsTable.id, id), eq(vaultsTable.userId, userId)));
   }
 
-  async updateVault(id: string, encryptedContent: Buffer) {
+  async updateVault(id: string, data: string) {
     return this.db
       .update(vaultsTable)
       .set({
-        encryptedContent: encryptedContent,
+        encryptedVaultData: data,
       })
       .where(eq(vaultsTable.id, id));
   }
 }
 
 interface InitializeData {
-  encryptedContent: string;
-  passwordHash: string;
-  passwordSalt: string;
-  serverSidePasswordSalt: Buffer;
-  iv: string;
-  documentSalt: string;
+  encryptedVaultData: string;
+  vaultSalt: Buffer;
+  vaultIv: Buffer;
+
+  passwordHash: Buffer;
+  passwordSalt: Buffer;
 }
 
 async function getFirstElement<T>(array: Promise<T[]>): Promise<T | undefined> {

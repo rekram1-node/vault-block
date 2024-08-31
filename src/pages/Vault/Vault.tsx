@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 
-export const Vault = () => {
+export function Vault() {
   const [, navigate] = useLocation();
   return (
     <>
@@ -17,4 +17,4 @@ export const Vault = () => {
       </div>
     </>
   );
-};
+}

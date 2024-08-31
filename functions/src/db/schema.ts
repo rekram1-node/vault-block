@@ -33,12 +33,12 @@ export const vaultsTable = sqliteTable(
     notionPageId: text("notion_page_id").unique().notNull(),
 
     // added during initialization
-    encryptedContent: blob("encrypted_content").$type<Buffer>(),
-    passwordHash: text("password_hash"),
-    serverSidePasswordSalt: blob("serverside_password_salt").$type<Buffer>(),
-    documentSalt: text("document_salt"),
-    iv: text("iv"),
-    passwordSalt: text("password_salt"),
+    encryptedVaultData: text("encrypted_vault_data"),
+    vaultSalt: blob("vault_salt").$type<Buffer>(),
+    vaultIv: blob("vault_iv").$type<Buffer>(),
+
+    passwordHash: blob("password_hash").$type<Buffer>(),
+    passwordSalt: blob("password_salt").$type<Buffer>(),
   },
   (table) => {
     return {

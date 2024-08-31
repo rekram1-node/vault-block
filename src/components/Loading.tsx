@@ -1,7 +1,4 @@
-export const LoadingSpinner = (props: {
-  size?: number;
-  className?: string;
-}) => {
+export function LoadingSpinner(props: { size?: number; className?: string }) {
   return (
     <div role="status" className={props.className}>
       <svg
@@ -25,4 +22,4 @@ export const LoadingSpinner = (props: {
       <span className="sr-only">Loading...</span>
     </div>
   );
-};
+}

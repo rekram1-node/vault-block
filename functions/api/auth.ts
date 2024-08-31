@@ -8,7 +8,7 @@ import { factory, type Context } from "functions/api/hono";
 
 const auth_url = "https://api.notion.com/v1/oauth/authorize";
 const token_url = "https://api.notion.com/v1/oauth/token";
-const refresh_token_cookie = "refresh_token";
+const refresh_token_cookie = "__refresh_token";
 const iss = "https://vault-block.com";
 const aud = ["https://vault-block.com"];
 
@@ -56,6 +56,9 @@ const auth = app
     const code = c.req.query("code");
     if (!code && !refreshToken) {
       return unauthorized(c);
+    }
+    if (code === "null") {
+      return c.json({ error: "login cancelled" }, 400);
     }
 
     let token: string;

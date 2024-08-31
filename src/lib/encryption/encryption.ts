@@ -1,79 +1,76 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-var-requires
-const argon2 = require("argon2-browser");
+import { randomBytes, createCipheriv, createDecipheriv, subtle } from "crypto";
+import * as argon2 from "argon2-browser";
 
-export const createSalt = () => {
-  return randomBytes(16);
-};
-
-interface Argon2HashResult {
-  hash: Buffer;
-  hashHex: string;
-  encoded: string;
+export function createSalt(size = 16) {
+  return randomBytes(size);
 }
 
-export const deriveDocumentKey = async (
-  password: string,
-  salt: Buffer | string,
-) => {
-  const saltBuffer =
-    typeof salt === "string" ? Buffer.from(salt, "base64") : salt;
-  const hashResult = (await argon2.hash({
-    pass: password,
-    salt: saltBuffer,
+export async function deriveMasterKey(masterPassword: string, vaultId: string) {
+  const result = await argon2.hash({
+    pass: masterPassword,
+    salt: vaultId,
     time: 2,
     mem: 2 ** 17,
     parallelism: 1,
     hashLen: 32,
     type: argon2.ArgonType.Argon2id,
-  })) as Argon2HashResult;
+  });
+  return result.hash;
+}
 
-  return hashResult?.hash;
-};
-
-export const hashPassword = async (password: string, salt: Buffer | string) => {
-  const saltBuffer =
-    typeof salt === "string" ? Buffer.from(salt, "base64") : salt;
-  const hashResult = (await argon2.hash({
-    pass: password,
-    salt: saltBuffer,
+export async function deriveMasterPasswordHash(
+  masterPassword: string,
+  masterKey: Uint8Array,
+) {
+  const result = await argon2.hash({
+    pass: masterPassword,
+    salt: masterKey,
     time: 2,
     mem: 2 ** 17,
     parallelism: 1,
     hashLen: 32,
     type: argon2.ArgonType.Argon2id,
-  })) as Argon2HashResult;
+  });
+  return result.hash;
+}
 
-  return hashResult?.encoded;
-};
+export async function deriveStretchedMasterKey(masterKey: Uint8Array) {
+  const keyMaterial = await subtle.importKey(
+    "raw",
+    masterKey,
+    { name: "HKDF" },
+    false,
+    ["deriveBits"],
+  );
 
-export const encryptData = async (
-  data: string,
-  iv: Buffer | string,
-  key: Buffer | string,
-) => {
-  const ivBuffer = typeof iv === "string" ? Buffer.from(iv, "base64") : iv;
-  const keyBuffer = typeof key === "string" ? Buffer.from(key, "base64") : key;
-  const cipher = createCipheriv("aes-256-cbc", keyBuffer, ivBuffer);
-  let encrypted = cipher.update(data, "utf8", "hex");
-  encrypted += cipher.final("hex");
+  const rawKey = await subtle.deriveBits(
+    {
+      name: "HKDF",
+      salt: createSalt(),
+      hash: "SHA-256",
+      info: new Uint8Array(),
+    },
+    keyMaterial,
+    256, // 32 byte
+  );
+
+  return new Uint8Array(rawKey);
+}
+
+export async function encryptData(data: string, iv: Buffer, key: Uint8Array) {
+  const cipher = createCipheriv("aes-256-gcm", key, iv);
+  const encrypted = cipher.update(data, "utf8", "hex");
 
   return encrypted;
-};
+}
 
-export const decryptData = async (
+export async function decryptData(
   encryptedData: string,
-  iv: Buffer | string,
-  key: Buffer | string,
-) => {
-  const ivBuffer = typeof iv === "string" ? Buffer.from(iv, "base64") : iv;
-  const keyBuffer = typeof key === "string" ? Buffer.from(key, "base64") : key;
-  const decipher = createDecipheriv("aes-256-cbc", keyBuffer, ivBuffer);
-  let decrypted = decipher.update(encryptedData, "hex", "utf8");
-  decrypted += decipher.final("utf8");
+  iv: Buffer,
+  key: Uint8Array,
+) {
+  const decipher = createDecipheriv("aes-256-gcm", key, iv);
+  const decrypted = decipher.update(encryptedData, "hex", "utf8");
 
   return decrypted;
-};
+}

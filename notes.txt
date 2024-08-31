@@ -1,5 +1,8 @@
 TODO:
 
+Encryption flow should mimic bitwardens:
+https://bitwarden.com/help/bitwarden-security-white-paper/#hashing-key-derivation-and-encryption
+
 * Finish normal auth Flow
 -> KV for refresh tokens
 -> Push code

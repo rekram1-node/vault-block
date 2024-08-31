@@ -18,28 +18,34 @@ const unauthedApi = hc<AppType>("/", {
   },
 });
 
+class RedirectError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RedirectError";
+  }
+}
+
 const kyapi = ky.extend({
   throwHttpErrors: false,
   hooks: {
     beforeRequest: [
-      (request) => {
-        const { accessToken } = useAuth.getState();
+      async (request) => {
+        const { accessToken, refreshAccessToken } = useAuth.getState();
         if (accessToken && request.headers.get("Authorization") === null) {
-          request.headers.set("Authorization", "Bearer " + accessToken.raw);
-        }
-      },
-    ],
-    afterResponse: [
-      async (_, __, response: Response) => {
-        const { setAccessToken } = useAuth.getState();
-        if (response.status !== 401) return response;
+          let token = accessToken.raw;
+          const now = Math.floor(Date.now() / 1000);
+          const difference = now - accessToken.body.exp;
 
-        const result = await unauthedApi.api.auth.token.$post();
-        if (result.status !== 401 && result.ok) {
-          const response = await result.json();
-          setAccessToken(response.token);
-        } else {
-          window.location.href = "/auth/sign-in";
+          if (difference > 0 || Math.abs(difference) <= 60) {
+            const jwt = await refreshAccessToken();
+            if (jwt) {
+              token = jwt.raw;
+            } else {
+              throw new RedirectError("Redirecting to sign-in");
+            }
+          }
+
+          request.headers.set("Authorization", "Bearer " + token);
         }
       },
     ],

@@ -1,6 +1,6 @@
 import { LoadingSpinner } from "./Loading";
 
-const Modal = ({
+export function Modal({
   title,
   content,
   actionText,
@@ -14,7 +14,7 @@ const Modal = ({
   isLoading: boolean;
   onCancel(): void;
   onConfirm(): void;
-}) => {
+}) {
   const actionTxt = actionText ?? "Delete";
 
   const handleModalClick = (
@@ -51,6 +51,6 @@ const Modal = ({
       </div>
     </div>
   );
-};
+}
 
 export default Modal;

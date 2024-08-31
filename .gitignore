@@ -24,7 +24,7 @@ dist/
 *.tsbuildinfo
 
 # sqllite
-local/
+local.*
 
 # misc
 .vscode/**

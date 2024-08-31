@@ -12,7 +12,7 @@ const ThemeContext = createContext({
   toggleTheme: (_theme: string) => {},
 });
 
-export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState("light");
 
   useEffect(() => {
@@ -41,6 +41,6 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </ThemeContext.Provider>
   );
-};
+}
 
 export const useTheme = () => useContext(ThemeContext);

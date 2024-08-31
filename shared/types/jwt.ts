@@ -1,14 +1,10 @@
 export class Jwt {
   raw: string;
-  body?: JwtPayload;
+  body: JwtPayload;
 
   constructor(token: string) {
     this.raw = token;
-    const body = token.split(".")?.[1];
-    if (!body) {
-      return;
-    }
-
+    const body = token.split(".")?.[1] ?? "";
     this.body = JSON.parse(atob(body)) as JwtPayload;
   }
 }
@@ -26,7 +22,7 @@ export type JwtPayload = {
   tokenType?: TokenType;
 
   iat?: number;
-  exp?: number;
+  exp: number;
 
   aud: string | string[];
   iss: string;

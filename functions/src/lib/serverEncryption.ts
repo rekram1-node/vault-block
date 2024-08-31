@@ -1,6 +1,6 @@
 import argon2 from "argon2";
 
-export const hashPassword = async (password: string, salt: Buffer) => {
+export async function hashPassword(password: string, salt: Buffer) {
   const hashedPassword = await argon2.hash(password, {
     type: 2,
     salt,
@@ -11,4 +11,4 @@ export const hashPassword = async (password: string, salt: Buffer) => {
   });
 
   return hashedPassword;
-};
+}

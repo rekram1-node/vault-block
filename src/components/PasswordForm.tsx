@@ -14,12 +14,12 @@ interface PasswordFormParams {
   handlePassword(password: string): Promise<PasswordSubmitResult>;
 }
 
-const PasswordForm = ({
+function PasswordForm({
   inputPlaceholder,
   submitButtonName,
   isLoading,
   handlePassword,
-}: PasswordFormParams) => {
+}: PasswordFormParams) {
   const [password, setPassword] = useState("");
   const [eyeOpen, setEyeOpen] = useState(true);
 
@@ -75,6 +75,6 @@ const PasswordForm = ({
       </div>
     </div>
   );
-};
+}
 
 export default PasswordForm;

@@ -23,20 +23,8 @@ const useFetchTokenMutation = (
       return await res.json();
     },
     onSuccess: (data) => {
-      const token = setAccessToken(data.token);
+      setAccessToken(data.token);
       if (hasFiredRef) hasFiredRef.current = false;
-
-      if (token.body?.exp) {
-        const currentTime = Math.floor(Date.now() / 1000);
-        const timeUntilExpiration = token.body.exp - currentTime;
-        const refreshTime = timeUntilExpiration - 60; // 1 minute before expiration
-
-        if (refreshTime > 0) {
-          setTimeout(() => {
-            mutation.mutate(undefined);
-          }, refreshTime * 1000);
-        }
-      }
     },
     onError: () => {
       navigate("/auth/sign-in");
@@ -47,7 +35,7 @@ const useFetchTokenMutation = (
   return mutation;
 };
 
-export const OauthProvider = ({ children }: { children: React.ReactNode }) => {
+export function OauthProvider({ children }: { children: React.ReactNode }) {
   const { accessToken } = useAuth();
   const hasFiredMutationRef = useRef(false);
   const mutation = useFetchTokenMutation(hasFiredMutationRef);
@@ -65,31 +53,23 @@ export const OauthProvider = ({ children }: { children: React.ReactNode }) => {
   if (pageIsAuthing) {
     return <>{children}</>;
   }
-  return <>{accessToken && !mutation.isPending && children}</>;
-};
-
-export const Login = () => {
-  const handleLogin = async () => {
-    const result = await noAuthApi.auth.url.$get();
-
-    if (result.ok) {
-      window.location.assign((await result.json()).url);
-    } else {
-      toast.error("failed to login, contact support");
-    }
-  };
 
   return (
     <>
-      <h3>Login to Dashboard</h3>
-      <button className="btn" onClick={handleLogin}>
-        Login
-      </button>
+      {accessToken != null && children}
+      {accessToken == null && (
+        <div>
+          {/* Make better loading later... */}
+          <button onClick={() => console.log(accessToken, mutation.isPending)}>
+            Loading...
+          </button>
+        </div>
+      )}
     </>
   );
-};
+}
 
-export const Callback = () => {
+export function Callback() {
   const called = useRef(false);
   const { accessToken } = useAuth();
   const [, navigate] = useLocation();
@@ -110,4 +90,4 @@ export const Callback = () => {
   }, [accessToken, navigate]);
 
   return null;
-};
+}

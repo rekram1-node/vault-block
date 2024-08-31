@@ -10,12 +10,13 @@ import * as schema from "functions/src/db/schema";
 
 export type Env = {
   Bindings: {
+    VAULT_BLOCK: KVNamespace;
     TURSO_DATABASE_URL?: string;
     TURSO_AUTH_TOKEN?: string;
     MAX_PAGES: number;
     NOTION_CLIENT_ID: string;
     NOTION_CLIENT_SECRET: string;
-    REDIRECT_URL: string;
+    REDIRECT_URL?: string;
     ACCESS_TOKEN_SECRET: string;
     REFRESH_TOKEN_SECRET: string;
   };

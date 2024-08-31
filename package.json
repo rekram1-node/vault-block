@@ -9,8 +9,9 @@
     "db:migrate": "drizzle-kit migrate",
     "deploy": "wrangler pages deploy",
     "dev:db": "turso dev --db-file local.db",
-    "dev:server": "vite build && wrangler pages dev --port 3001 --live-reload",
-    "dev:web": "vite"
+    "dev:server": "vite build && wrangler pages dev --port 3001 --live-reload --kv VAULT_BLOCK --persist-to .wrangler/state",
+    "dev:web": "vite",
+    "dev": "goreman -exit-on-error start"
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20240821.1",

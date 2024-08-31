@@ -2,3 +2,7 @@ name = "vault-block"
 compatibility_date = "2024-07-01"
 pages_build_output_dir = "./dist"
 
+[[kv_namespaces]]
+binding = "VAULT_BLOCK"
+id = "d5e46b2dc4f54b74bb257562ee9c49b4"
+preview_id = "281ccc40613144549693379fc9f7dbbc"

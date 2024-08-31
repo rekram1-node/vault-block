@@ -41,10 +41,14 @@ export const authMiddleware: MiddlewareHandler = async (c: Context, next) => {
 
 const auth = app
   .get("/url", async (c) => {
+    const url = new URL(c.req.url);
+    const redirect =
+      c.env.REDIRECT_URL ?? `${url.protocol}/${url.host}/auth/callback`;
+
     return c.json({
       url: `${auth_url}?${new URLSearchParams({
         client_id: c.env.NOTION_CLIENT_ID,
-        redirect_uri: c.env.REDIRECT_URL,
+        redirect_uri: redirect,
         owner: "owner",
         response_type: "code",
       }).toString()}`,
@@ -66,12 +70,16 @@ const auth = app
       const encodedCreds = btoa(
         `${c.env.NOTION_CLIENT_ID}:${c.env.NOTION_CLIENT_SECRET}`,
       );
+      const url = new URL(c.req.url);
+      const redirect =
+        c.env.REDIRECT_URL ?? `${url.protocol}/${url.host}/auth/callback`;
+
       const result = await api<TokenResponse>(token_url, {
         method: "POST",
         body: JSON.stringify({
           code,
           grant_type: "authorization_code",
-          redirect_uri: c.env.REDIRECT_URL,
+          redirect_uri: redirect,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -112,6 +120,11 @@ const auth = app
         c.env.REFRESH_TOKEN_SECRET,
       );
 
+      // add cookie to cache
+      await c.env.VAULT_BLOCK.put(newRefreshToken, "true", {
+        expiration: refreshTokenExpiration,
+      });
+
       setCookie(c, refresh_token_cookie, newRefreshToken, {
         path: "/",
         secure: true,
@@ -133,8 +146,12 @@ const auth = app
       );
       if (!isValid) return unauthorized(c);
 
-      // add a db check later
-      //   if (t.payload.sub) << find refresh token based on sub, if it doesn't match... unauthorized
+      const realToken = await c.env.VAULT_BLOCK.get(refreshToken);
+      if (!realToken) {
+        console.log("token doesn't exist...");
+        return unauthorized(c);
+      }
+
       const now = Math.floor(Date.now() / 1000); // Current UTC time in seconds
       token = await jwt.sign<JwtPayload, JwtHeader>(
         {
@@ -152,9 +169,24 @@ const auth = app
 
     return c.json({ token });
   })
-
-  .post("/logout", authMiddleware, async (c) => {
+  .get("/delete", async (c) => {
     deleteCookie(c, refresh_token_cookie);
+    return new Response(null, { status: 200 });
+  })
+  .get("/t", async (c) => {
+    console.log(
+      "does cookie exist:",
+      getCookie(c, refresh_token_cookie) !== undefined,
+    );
+    return new Response(null, { status: 200 });
+  })
+  .post("/logout", authMiddleware, async (c) => {
+    const cookie = getCookie(c, refresh_token_cookie);
+    if (cookie) {
+      console.log("deleting cookie");
+      deleteCookie(c, refresh_token_cookie);
+      await c.env.VAULT_BLOCK.delete(cookie);
+    }
     return new Response(null, { status: 200 });
   });
 

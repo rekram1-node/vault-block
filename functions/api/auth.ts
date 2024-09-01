@@ -41,9 +41,10 @@ export const authMiddleware: MiddlewareHandler = async (c: Context, next) => {
 
 const auth = app
   .get("/url", async (c) => {
-    const url = new URL(c.req.url);
-    const redirect =
-      c.env.REDIRECT_URL ?? `${url.protocol}/${url.host}/auth/callback`;
+    const redirect = c.env.REDIRECT_URL ?? c.env.CF_PAGES_URL;
+    if (!redirect) {
+      return c.json({ error: "missing valid redirect url" }, 500);
+    }
 
     return c.json({
       url: `${auth_url}?${new URLSearchParams({

@@ -72,9 +72,11 @@ const auth = app
       const encodedCreds = btoa(
         `${c.env.NOTION_CLIENT_ID}:${c.env.NOTION_CLIENT_SECRET}`,
       );
-      const url = new URL(c.req.url);
-      const redirect =
-        c.env.REDIRECT_URL ?? `${url.protocol}/${url.host}/auth/callback`;
+      let redirect = c.env?.REDIRECT_URL ?? c.env?.CF_PAGES_URL;
+      if (!redirect) {
+        return c.json({ error: "missing valid redirect url" }, 500);
+      }
+      redirect += "/auth/callback";
 
       const result = await api<TokenResponse>(token_url, {
         method: "POST",

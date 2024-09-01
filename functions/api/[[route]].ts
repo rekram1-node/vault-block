@@ -7,6 +7,13 @@ import cuid2 from "@paralleldrive/cuid2";
 
 const app = factory.createApp().basePath("/api");
 
+app.use("*", async (c, next) => {
+  console.log(c.env);
+  console.log(c.var);
+
+  await next();
+});
+
 const appRouter = app
   .use("/vaults/*", authMiddleware)
   .use("/user/*", authMiddleware)

@@ -2,7 +2,8 @@
     "extends": "../tsconfig.json",
     "include": [
         "./api/**/*",
-        "./src/**/*"
+        "./src/**/*",
+        "../shared/**/*",
     ],
     "compilerOptions": {
         "composite": true,
@@ -11,11 +12,12 @@
         "module": "ESNext",
         "moduleResolution": "Bundler",
         "outDir": "../node_modules/.tmp/backend",
+        "rootDir": "..",
         "lib": [
             "ESNext"
         ],
         "types": [
             "@cloudflare/workers-types"
-        ]
+        ],
     }
 }

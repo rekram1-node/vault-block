@@ -15,15 +15,17 @@ dist/
 *.pem
 
 # local env files
-# do not commit any .env files to git, except for the .env.example file. https://create.t3.gg/en/usage/env-variables#using-environment-variables
+# do not commit any .env files to git, except for the .env.example file.
 .env
+.env-*
 .env*.local
+.dev.vars
 
 # typescript
 *.tsbuildinfo
 
 # sqllite
-local/
+local.*
 
 # misc
 .vscode/**

@@ -1,1 +1,32 @@
-try to deploy then build more....
+TODO:
+
+Encryption flow should mimic bitwardens:
+https://bitwarden.com/help/bitwarden-security-white-paper/#hashing-key-derivation-and-encryption
+
+* Finish normal auth Flow
+-> KV for refresh tokens
+-> Push code
+
+* New DB setup & Encryption
+-> Design encryption & hashing architecture
+-> DB per user?
+-> Push
+
+* Full functionality
+-> JWT for vaults, autosave, etc
+-> Ratelimiting
+-> Max # of pages enforcement
+-> Max size enforcement
+
+* Make it pretty
+-> Better Error Handling
+-> Actual Login page
+-> Actual User Modal
+-> Export your data??
+
+* Event Driven updates??
+    - may not be necessary but does help prevent data loss...
+* Setup tests
+* Talk about it
+* Docs...
+* Buy domain 

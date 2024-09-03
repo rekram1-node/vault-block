@@ -1,6 +1,7 @@
+import { QueryClient } from "@tanstack/react-query";
 import { type AppType } from "functions/api/[[route]]";
 import { hc } from "hono/client";
-import ky from "ky";
+import ky, { HTTPError } from "ky";
 import { useAuth } from "~/hooks/useAuth";
 
 const unauthedApi = hc<AppType>("/", {
@@ -67,3 +68,21 @@ const client = hc<AppType>("/", {
 
 export const api = client.api;
 export const noAuthApi = unauthedApi.api;
+
+const http_status_no_retry = [400, 403, 404];
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        if (error instanceof HTTPError) {
+          if (http_status_no_retry.includes(error.response.status)) {
+            return false;
+          }
+        }
+        // Enable retries for other errors (up to 3 times)
+        return failureCount < 3;
+      },
+    },
+  },
+});

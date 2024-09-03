@@ -3,10 +3,6 @@ TODO:
 Encryption flow should mimic bitwardens:
 https://bitwarden.com/help/bitwarden-security-white-paper/#hashing-key-derivation-and-encryption
 
-* Finish normal auth Flow
--> KV for refresh tokens
--> Push code
-
 * New DB setup & Encryption
 -> Design encryption & hashing architecture
 -> DB per user?
@@ -30,3 +26,5 @@ https://bitwarden.com/help/bitwarden-security-white-paper/#hashing-key-derivatio
 * Talk about it
 * Docs...
 * Buy domain 
+    - Also setup subdomain so dev emphemeral environments will be valid for notion integration
+    - Also would need to update Vault (dev) cfg obvi

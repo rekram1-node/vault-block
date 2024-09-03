@@ -30,3 +30,4 @@ local.*
 # misc
 .vscode/**
 
+script.ts

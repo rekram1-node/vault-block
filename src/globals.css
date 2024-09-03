@@ -32,26 +32,27 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
+    --background: 240 5% 10%; /* Dark background */
+    --foreground: 210 15% 95%; /* Light grey text */
+    --card: 240 6% 12%; /* Slightly lighter than background */
+    --card-foreground: 210 15% 95%; /* Light grey */
+    --popover: 240 6% 12%; /* Matches card color */
+    --popover-foreground: 210 15% 95%; /* Light grey */
+    --primary: 250 50% 60%; /* Slightly muted purple */
+    --primary-foreground: 240 20% 95%; /* Light text for primary */
+    --secondary: 240 4% 18%; /* Darker grey for secondary elements */
+    --secondary-foreground: 210 15% 80%; /* Light grey for secondary text */
+    --muted: 240 4% 18%; /* Same as secondary */
+    --muted-foreground: 210 15% 65%; /* Muted text color */
+    --accent: 250 50% 60%; /* Same as primary */
+    --accent-foreground: 240 20% 95%; /* Light accent text */
+    --destructive: 0 80% 45%; /* Muted red for destructive actions */
+    --destructive-foreground: 210 15% 95%; /* Light grey for destructive text */
+    --border: 240 4% 22%; /* Dark grey border */
+    --input: 240 4% 22%; /* Darker input background */
+    --ring: 250 50% 60%; /* Purple ring for focus */
+    --radius: 0.5rem; /* Keep the same border radius */
+    --chart-1: 250 60% 50%; /* Adjusted chart colors for better contrast */
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;

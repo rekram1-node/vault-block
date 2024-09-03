@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+
 import {
   Card,
   CardContent,
@@ -14,17 +16,38 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { Vault } from "./Vault";
+import { Create } from "./vaults/Create";
+import { api } from "~/lib/query";
 
 export default function ListVaults() {
+  const { data: vaults } = useQuery({
+    queryKey: ["vaults"],
+    queryFn: async () => {
+      const res = await api.user.vaults.$get();
+      return await res.json();
+    },
+  });
+  console.log(vaults);
+
   return (
     // The transparent borders and background may not be ideal
     // bg-transparent border-transparent
-    <Card className="h-auto max-h-[80vh] w-2/3 overflow-y-auto bg-transparent p-4">
+    <Card className="h-auto max-h-[80vh] w-2/3 overflow-y-auto p-4">
       <CardHeader>
-        <CardTitle>Your Vaults</CardTitle>
+        {/* <CardTitle>Your Vaults</CardTitle>
         <CardDescription>
           Manage your vaults and view their content.
         </CardDescription>
+        <Button>Create</Button> */}
+        <div className="flex items-start justify-between">
+          <div>
+            <CardTitle>Your Vaults</CardTitle>
+            <CardDescription>
+              Manage your vaults and view their content.
+            </CardDescription>
+          </div>
+          <Create />
+        </div>
       </CardHeader>
       <CardContent>
         <Table>

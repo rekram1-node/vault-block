@@ -11,6 +11,7 @@ export function Home() {
     },
   });
   console.log(data);
+  console.log("Environment Variables:", import.meta.env);
 
   return (
     <>

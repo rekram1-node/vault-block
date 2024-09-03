@@ -8,6 +8,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const fetchCalled = useRef(false);
 
   useEffect(() => {
+    if (!accessToken) {
+      setRedirect(false);
+    }
     if (accessToken) return;
     const fetch = async () => {
       fetchCalled.current = true;
@@ -19,6 +22,8 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     void fetch();
   }, [accessToken]);
 
+  console.log(redirect);
+  console.log(accessToken);
   if (redirect) {
     return <Redirect to="/auth/sign-in" />;
   }

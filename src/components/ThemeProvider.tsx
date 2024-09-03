@@ -7,13 +7,13 @@ import {
 } from "react";
 
 const ThemeContext = createContext({
-  theme: "light",
+  theme: "dark",
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  toggleTheme: (_theme: string) => {},
+  toggleTheme: () => {},
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -31,7 +31,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme]);
 
   const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
+    const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
   };

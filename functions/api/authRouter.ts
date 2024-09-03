@@ -35,6 +35,7 @@ export const authMiddleware: MiddlewareHandler = async (c: Context, next) => {
 
   c.set("jwtHeader", t.header);
   c.set("jwtPayload", t.payload);
+  c.set("userId", t.payload.sub);
 
   await next();
 };
@@ -68,7 +69,38 @@ const auth = app
     }
 
     let token: string;
-    if (!refreshToken) {
+    if (refreshToken) {
+      const t = jwt.decode<JwtPayload, JwtHeader>(refreshToken);
+      if (!t.header || !t.payload || t.payload.tokenType != "refresh_token") {
+        return unauthorized(c);
+      }
+
+      const isValid = await jwt.verify(
+        refreshToken,
+        c.env.REFRESH_TOKEN_SECRET,
+      );
+      if (!isValid) return unauthorized(c);
+
+      const realToken = await c.env.VAULT_BLOCK.get(refreshToken);
+      if (!realToken) {
+        console.log("token doesn't exist...");
+        return unauthorized(c);
+      }
+
+      const now = Math.floor(Date.now() / 1000); // Current UTC time in seconds
+      token = await jwt.sign<JwtPayload, JwtHeader>(
+        {
+          iat: now,
+          exp: now + 15 * 60,
+          tokenType: "access_token",
+          sub: t.payload.sub,
+          token: t.payload.token,
+          aud,
+          iss,
+        },
+        c.env.ACCESS_TOKEN_SECRET,
+      );
+    } else {
       const encodedCreds = btoa(
         `${c.env.NOTION_CLIENT_ID}:${c.env.NOTION_CLIENT_SECRET}`,
       );
@@ -130,62 +162,20 @@ const auth = app
       setCookie(c, refresh_token_cookie, newRefreshToken, {
         path: "/",
         secure: true,
+        // TODO: add domain...
         // domain: "example.com",
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
         expires: new Date(refreshTokenExpiration),
         sameSite: "Strict",
       });
-    } else {
-      const t = jwt.decode<JwtPayload, JwtHeader>(refreshToken);
-      if (!t.header || !t.payload || t.payload.tokenType != "refresh_token") {
-        return unauthorized(c);
-      }
-
-      const isValid = await jwt.verify(
-        refreshToken,
-        c.env.REFRESH_TOKEN_SECRET,
-      );
-      if (!isValid) return unauthorized(c);
-
-      const realToken = await c.env.VAULT_BLOCK.get(refreshToken);
-      if (!realToken) {
-        console.log("token doesn't exist...");
-        return unauthorized(c);
-      }
-
-      const now = Math.floor(Date.now() / 1000); // Current UTC time in seconds
-      token = await jwt.sign<JwtPayload, JwtHeader>(
-        {
-          iat: now,
-          exp: now + 15 * 60,
-          tokenType: "access_token",
-          sub: t.payload.sub,
-          token: t.payload.token,
-          aud,
-          iss,
-        },
-        c.env.ACCESS_TOKEN_SECRET,
-      );
     }
 
     return c.json({ token });
   })
-  .get("/delete", async (c) => {
-    deleteCookie(c, refresh_token_cookie);
-    return new Response(null, { status: 200 });
-  })
-  .get("/t", async (c) => {
-    console.log(
-      "does cookie exist:",
-      getCookie(c, refresh_token_cookie) !== undefined,
-    );
-    return new Response(null, { status: 200 });
-  })
   .post("/logout", authMiddleware, async (c) => {
     const cookie = getCookie(c, refresh_token_cookie);
     if (cookie) {
-      console.log("deleting cookie");
       deleteCookie(c, refresh_token_cookie);
       await c.env.VAULT_BLOCK.delete(cookie);
     }

@@ -24,9 +24,9 @@ export class Queries {
         .set({
           encryptedVaultData: data.encryptedVaultData,
           vaultIv: data.vaultIv,
-          vaultSalt: data.vaultSalt,
+          // vaultSalt: data.vaultSalt,
           passwordHash: data.passwordHash,
-          passwordSalt: data.passwordSalt,
+          // passwordSalt: data.passwordSalt,
         })
         .where(eq(vaultsTable.id, id))
         .returning(),
@@ -57,16 +57,16 @@ export class Queries {
     return result?.value ?? 0;
   }
 
-  async readPasswordSalt(id: string) {
-    return getFirstElement(
-      this.db
-        .select({
-          passwordSalt: vaultsTable.passwordSalt,
-        })
-        .from(vaultsTable)
-        .where(eq(vaultsTable.id, id)),
-    );
-  }
+  // async readPasswordSalt(id: string) {
+  //   return getFirstElement(
+  //     this.db
+  //       .select({
+  //         passwordSalt: vaultsTable.passwordSalt,
+  //       })
+  //       .from(vaultsTable)
+  //       .where(eq(vaultsTable.id, id)),
+  //   );
+  // }
 
   async readVault(id: string) {
     return getFirstElement(
@@ -77,7 +77,7 @@ export class Queries {
 
           encryptedVaultData: vaultsTable.encryptedVaultData,
           vaultIv: vaultsTable.vaultIv,
-          vaultSalt: vaultsTable.vaultSalt,
+          // hdf: vaultsTable.vaultSalt,
         })
         .from(vaultsTable)
         .where(eq(vaultsTable.id, id)),
@@ -102,11 +102,9 @@ export class Queries {
 
 interface InitializeData {
   encryptedVaultData: string;
-  vaultSalt: Buffer;
-  vaultIv: Buffer;
+  vaultIv: string;
 
-  passwordHash: Buffer;
-  passwordSalt: Buffer;
+  passwordHash: string;
 }
 
 async function getFirstElement<T>(array: Promise<T[]>): Promise<T | undefined> {

@@ -1,8 +1,8 @@
-import { randomBytes, createCipheriv, createDecipheriv, subtle } from "crypto";
-import * as argon2 from "argon2-browser";
+import argon2 from "argon2-browser/dist/argon2-bundled.min.js";
+// import * as argon2 from "argon2-browser";
 
 export function createSalt(size = 16) {
-  return randomBytes(size);
+  return crypto.getRandomValues(new Uint8Array(size));
 }
 
 export async function deriveMasterKey(masterPassword: string, vaultId: string) {
@@ -34,8 +34,11 @@ export async function deriveMasterPasswordHash(
   return result.hash;
 }
 
-export async function deriveStretchedMasterKey(masterKey: Uint8Array) {
-  const keyMaterial = await subtle.importKey(
+export async function deriveStretchedMasterKey(
+  masterKey: Uint8Array,
+  hdkfSalt: Uint8Array,
+) {
+  const keyMaterial = await crypto.subtle.importKey(
     "raw",
     masterKey,
     { name: "HKDF" },
@@ -43,34 +46,94 @@ export async function deriveStretchedMasterKey(masterKey: Uint8Array) {
     ["deriveBits"],
   );
 
-  const rawKey = await subtle.deriveBits(
+  const rawKey = await crypto.subtle.deriveBits(
     {
       name: "HKDF",
-      salt: createSalt(),
+      salt: hdkfSalt,
       hash: "SHA-256",
       info: new Uint8Array(),
     },
     keyMaterial,
-    256, // 32 byte
+    256,
   );
 
   return new Uint8Array(rawKey);
 }
 
-export async function encryptData(data: string, iv: Buffer, key: Uint8Array) {
-  const cipher = createCipheriv("aes-256-gcm", key, iv);
-  const encrypted = cipher.update(data, "utf8", "hex");
+export async function encryptData(
+  data: string,
+  iv: Uint8Array,
+  key: Uint8Array,
+) {
+  const encoded = new TextEncoder().encode(data);
+  const secret = await crypto.subtle.importKey(
+    "raw",
+    key,
+    {
+      name: "AES-GCM",
+      length: 256,
+    },
+    true,
+    ["encrypt", "decrypt"],
+  );
+  const ciphertext = await crypto.subtle.encrypt(
+    {
+      name: "AES-GCM",
+      iv,
+    },
+    secret,
+    encoded,
+  );
 
-  return encrypted;
+  return Uint8ArrayToBase64(new Uint8Array(ciphertext));
+  // return Buffer.from(ciphertext).toString("base64");
+  // const cipher = createCipheriv("aes-256-gcm", key, iv);
+  // const encrypted = cipher.update(data, "utf8", "hex");
+  // return encrypted
 }
 
 export async function decryptData(
   encryptedData: string,
-  iv: Buffer,
+  iv: Uint8Array,
   key: Uint8Array,
 ) {
-  const decipher = createDecipheriv("aes-256-gcm", key, iv);
-  const decrypted = decipher.update(encryptedData, "hex", "utf8");
+  const secretKey = await crypto.subtle.importKey(
+    "raw",
+    key,
+    {
+      name: "AES-GCM",
+      length: 256,
+    },
+    true,
+    ["encrypt", "decrypt"],
+  );
 
-  return decrypted;
+  const ciphertext = Base64ToUint8Array(encryptedData);
+
+  const cleartext = await crypto.subtle.decrypt(
+    {
+      name: "AES-GCM",
+      iv,
+    },
+    secretKey,
+    ciphertext,
+  );
+
+  return new TextDecoder().decode(cleartext);
+  // const decipher = createDecipheriv("aes-256-gcm", key, iv);
+  // const decrypted = decipher.update(encryptedData, "hex", "utf8");
+  // return decrypted;
+}
+
+export function Uint8ArrayToBase64(a: Uint8Array) {
+  return btoa(String.fromCharCode(...a));
+}
+
+export function Base64ToUint8Array(s: string) {
+  const binaryString = atob(s);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
 }

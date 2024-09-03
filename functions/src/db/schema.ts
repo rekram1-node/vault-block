@@ -1,16 +1,6 @@
 import { sql } from "drizzle-orm";
-import {
-  integer,
-  sqliteTable,
-  text,
-  blob,
-  index,
-} from "drizzle-orm/sqlite-core";
-import { init } from "@paralleldrive/cuid2";
-
-const createId = init({
-  length: 32,
-});
+import { integer, sqliteTable, text, index } from "drizzle-orm/sqlite-core";
+import { createId } from "shared/lib/createId";
 
 export const vaultsTable = sqliteTable(
   "vaults",
@@ -30,19 +20,20 @@ export const vaultsTable = sqliteTable(
     // required fields
     userId: text("user_id").notNull(),
     name: text("name").notNull(),
-    notionPageId: text("notion_page_id").unique().notNull(),
+    notionPageId: text("notion_page_id").unique(),
 
     // added during initialization
     encryptedVaultData: text("encrypted_vault_data"),
-    vaultSalt: blob("vault_salt").$type<Buffer>(),
-    vaultIv: blob("vault_iv").$type<Buffer>(),
+    hdkfSalt: text("hdkf_salt"),
+    // vaultSalt: text("vault_salt").$type<Uint8Array>(),
+    vaultIv: text("vault_iv"),
 
-    passwordHash: blob("password_hash").$type<Buffer>(),
-    passwordSalt: blob("password_salt").$type<Buffer>(),
+    passwordHash: text("password_hash"),
+    // passwordSalt: blob("password_salt").$type<Uint8Array>(),
   },
   (table) => {
     return {
-      userIdIndex: index("encrypted_document_userId_idx").on(table.name),
+      userIdIndex: index("vault_userId_idx").on(table.name),
     };
   },
 );

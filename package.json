@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "postinstall": "cp node_modules/argon2-browser/dist/argon2-bundled.min.js public/argon2-bundled.min.js",
     "build": "vite build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -15,6 +16,7 @@
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20240821.1",
+    "@hono/zod-validator": "^0.2.2",
     "@libsql/client": "^0.5.6",
     "@paralleldrive/cuid2": "^2.2.2",
     "@radix-ui/react-dialog": "^1.1.1",
@@ -29,7 +31,6 @@
     "@tailwindcss/typography": "^0.5.12",
     "@tanstack/react-query": "^5.52.2",
     "@tsndr/cloudflare-worker-jwt": "^2.5.3",
-    "@types/argon2-browser": "^1.18.4",
     "argon2": "^0.31.2",
     "argon2-browser": "^1.18.0",
     "base64-loader": "^1.0.0",

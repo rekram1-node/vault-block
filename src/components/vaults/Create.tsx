@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { debounce } from "lodash";
 import { useMutation } from "@tanstack/react-query";
+import { type InferRequestType, type InferResponseType } from "hono/client";
+import { toast } from "sonner";
 
 import { api, keys, queryClient } from "~/lib/query";
 import {
@@ -24,9 +26,7 @@ import {
   encryptData,
   Uint8ArrayToBase64,
 } from "~/lib/encryption/encryption";
-import { defaultValue } from "../novel/Editor";
-import { type InferRequestType, type InferResponseType } from "hono/client";
-import { toast } from "sonner";
+import { defaultValue } from "~/components/novel/Editor";
 
 export function Create() {
   const [open, setOpen] = useState(false);
@@ -57,7 +57,7 @@ export function Create() {
       void queryClient.invalidateQueries({
         queryKey: keys.vaults,
       });
-      toast.success("Successfully created vault");
+      toast.info("Successfully created vault");
       setOpen(false);
     },
     onError(error, _variables, _context) {

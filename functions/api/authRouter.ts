@@ -42,12 +42,8 @@ export const authMiddleware: MiddlewareHandler = async (c: Context, next) => {
 
 const auth = app
   .get("/url", async (c) => {
-    let redirect = c.env?.REDIRECT_URL ?? c.env?.CF_PAGES_URL;
-    if (!redirect) {
-      return c.json({ error: "missing valid redirect url" }, 500);
-    }
-    redirect += "/auth/callback";
-
+    const url = new URL(c.req.url);
+    const redirect = c.env.REDIRECT_URL ?? `${url.origin}/auth/callback`;
     return c.json({
       url: `${auth_url}?${new URLSearchParams({
         client_id: c.env.NOTION_CLIENT_ID,
@@ -69,7 +65,7 @@ const auth = app
     }
 
     let token: string;
-    if (refreshToken) {
+    if (!code && refreshToken) {
       const t = jwt.decode<JwtPayload, JwtHeader>(refreshToken);
       if (!t.header || !t.payload || t.payload.tokenType != "refresh_token") {
         return unauthorized(c);
@@ -105,8 +101,7 @@ const auth = app
         `${c.env.NOTION_CLIENT_ID}:${c.env.NOTION_CLIENT_SECRET}`,
       );
       const url = new URL(c.req.url);
-      const redirect =
-        c.env.REDIRECT_URL ?? `${url.protocol}/${url.host}/auth/callback`;
+      const redirect = c.env.REDIRECT_URL ?? `${url.origin}/auth/callback`;
 
       const result = await api<TokenResponse>(token_url, {
         method: "POST",
@@ -173,7 +168,7 @@ const auth = app
 
     return c.json({ token });
   })
-  .post("/logout", authMiddleware, async (c) => {
+  .post("/logout", async (c) => {
     const cookie = getCookie(c, refresh_token_cookie);
     if (cookie) {
       deleteCookie(c, refresh_token_cookie);

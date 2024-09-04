@@ -1,5 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import { factory } from "functions/api/hono";
+import { Notion } from "functions/src/lib/notion";
 import { VaultSchema } from "functions/src/types/vault";
 
 const v = factory.createApp();
@@ -53,11 +54,38 @@ const vaults = v
     }
 
     return c.body(null, 204);
+  });
+
+const n = factory.createApp();
+
+const notionRoutes = n
+  .get("/", async (c) => {
+    const notion = new Notion(c);
+    const result = await notion.ReadPages();
+    if (!result.isOk) {
+      console.error("failed to read pages from notion:", result.error);
+      return c.json({ error: result.error }, 500);
+    }
+
+    return c.json(result.data);
   })
-  .post("/:vaultId/notion/:pageId", async (c) => {
+  .post("/:vaultId/:pageId", async (c) => {
     const vaultId = c.req.param("vaultId");
     const pageId = c.req.param("pageId");
-    return c.json({});
+    if (!vaultId || !pageId) {
+      return c.json(
+        { error: "missing a required parameter (vaultId, pageId)" },
+        400,
+      );
+    }
+    const notion = new Notion(c);
+    const result = await notion.AppendEmbeddedBlock(pageId, vaultId);
+    if (!result.isOk) {
+      console.error("failed to append vault to notion:", result.error);
+      return c.json({ error: result.error }, 500);
+    }
+
+    return c.body(null, 201);
   });
 
 // Endpoints only visible for the user regarding vaults
@@ -65,12 +93,6 @@ const vaults = v
 // const internalVaultEndpoints = app
 const u = factory.createApp();
 
-const users = u
-  .get("/", async (c) => {
-    return c.json({
-      userId: c.var.jwtPayload.sub,
-    });
-  })
-  .route("/vaults", vaults);
+const users = u.route("/vaults", vaults).route("/notion", notionRoutes);
 
 export const userRouter = users;

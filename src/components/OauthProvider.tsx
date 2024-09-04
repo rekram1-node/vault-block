@@ -4,7 +4,6 @@ import { noAuthApi } from "~/lib/query";
 import { useAuth } from "~/hooks/useAuth";
 import { useMutation } from "@tanstack/react-query";
 import { type ErrorResponse } from "shared/types/ErrorResponse";
-import { toast } from "sonner";
 
 const useFetchTokenMutation = (
   hasFiredRef?: React.MutableRefObject<boolean>,
@@ -17,7 +16,6 @@ const useFetchTokenMutation = (
       const res = await noAuthApi.auth.token.$post(args ?? {});
       if (!res.ok) {
         const errorData = (await res.json()) as ErrorResponse;
-        toast.error(errorData.error);
         throw new Error(errorData.error);
       }
       return await res.json();

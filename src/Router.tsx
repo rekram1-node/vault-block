@@ -13,10 +13,14 @@ export function Router() {
         <Route path="/auth/sign-in" component={Login} />
         <Route path="/auth/callback" component={Callback} />
 
-        <ProtectedRoute>
-          <Route path="/" component={Home} />
-          <Route path="/vault" component={Vault} />
-          <Route path="/page" component={Page} />
+        <ProtectedRoute path="/">
+          <Home />
+        </ProtectedRoute>
+        <ProtectedRoute path="/vault">
+          <Vault />
+        </ProtectedRoute>
+        <ProtectedRoute path="/page">
+          <Page />
         </ProtectedRoute>
 
         {/* TODO: Make a better 404 */}

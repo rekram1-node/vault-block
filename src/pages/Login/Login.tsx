@@ -1,6 +1,6 @@
-import { toast } from "sonner";
 import { noAuthApi } from "~/lib/query";
 import { LoginForm } from "~/components/LoginForm";
+import { toast } from "sonner";
 
 export function Login() {
   const handleLogin = async () => {
@@ -9,7 +9,7 @@ export function Login() {
     if (result.ok) {
       window.location.assign((await result.json()).url);
     } else {
-      toast.error("failed to login, contact support");
+      toast.error("Failed to login, contact support");
     }
   };
 

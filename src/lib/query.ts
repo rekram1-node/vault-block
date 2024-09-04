@@ -27,7 +27,7 @@ class RedirectError extends Error {
 }
 
 const kyapi = ky.extend({
-  throwHttpErrors: false,
+  throwHttpErrors: true,
   hooks: {
     beforeRequest: [
       async (request) => {

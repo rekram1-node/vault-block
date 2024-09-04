@@ -2,12 +2,12 @@ import { cn } from "~/lib/cn";
 import { useEditor } from "novel";
 import { Check, Trash } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { Button } from "~/components/novel/ui/Button";
+import { Button } from "~/components/ui/button";
 import {
   PopoverContent,
   Popover,
   PopoverTrigger,
-} from "~/components/novel/ui/Popover";
+} from "~/components/ui/popover";
 
 export function isValidUrl(url: string) {
   try {

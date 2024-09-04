@@ -1,4 +1,4 @@
-import { Toaster } from "sonner";
+import { Toaster } from "~/components/ui/sonner";
 import { useLocation } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Router } from "~/Router";

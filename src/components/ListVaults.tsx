@@ -18,16 +18,46 @@ import {
 import { Vault } from "./Vault";
 import { Create } from "./vaults/Create";
 import { api, keys } from "~/lib/query";
+import { VaultSkeleton } from "./VaultSkeleton";
+import { type Page } from "functions/src/lib/notion";
+import { isErrorResponse } from "shared/types/ErrorResponse";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 export default function ListVaults() {
-  const { data: vaults } = useQuery({
+  const { data: vaults, isLoading: isGetVaultsLoading } = useQuery({
     queryKey: keys.vaults,
     queryFn: async () => {
       const res = await api.user.vaults.$get();
       return await res.json();
     },
   });
-  console.log(vaults);
+
+  const {
+    data: notionPages,
+    isLoading: isGetNotionPagesLoading,
+    error,
+    isError,
+  } = useQuery({
+    queryKey: [],
+    queryFn: async () => {
+      const res = await api.user.notion.$get();
+      if (res.ok) {
+        return await res.json();
+      } else {
+        const d = await res.json();
+        if (isErrorResponse(d)) {
+          return Promise.reject(d);
+        }
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (isError) {
+      toast.error("Failed to read notion pages:" + error.message);
+    }
+  }, [error, isError]);
 
   return (
     // The transparent borders and background may not be ideal
@@ -63,8 +93,23 @@ export default function ListVaults() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {vaults?.map((v, i) => <Vault key={i} name={v.name} id={v.id} />)}
-            {/* TODO: Add skeleton and loading state */}
+            {isGetVaultsLoading && (
+              <>
+                <VaultSkeleton />
+                <VaultSkeleton />
+                <VaultSkeleton />
+              </>
+            )}
+            {!isGetVaultsLoading &&
+              vaults?.map((v, i) => (
+                <Vault
+                  key={i}
+                  name={v.name}
+                  id={v.id}
+                  notionPages={notionPages}
+                  isNotionPagesLoading={isGetNotionPagesLoading}
+                />
+              ))}
           </TableBody>
         </Table>
       </CardContent>

@@ -20,6 +20,8 @@ export type Env = {
     CF_PAGES_URL?: string;
     ACCESS_TOKEN_SECRET: string;
     REFRESH_TOKEN_SECRET: string;
+    NOTION_API_VERSION?: string;
+    VAULT_BLOCK_URL?: string;
   };
   Variables: {
     jwtHeader: JwtHeader;

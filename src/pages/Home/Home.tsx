@@ -1,16 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { api } from "~/lib/query";
 import ListVaults from "~/components/ListVaults";
 
 export function Home() {
-  const { data } = useQuery({
-    queryKey: [],
-    queryFn: async () => {
-      const res = await api.user.$get();
-      return await res.json();
-    },
-  });
-  console.log(data);
   console.log("Environment Variables:", import.meta.env);
 
   return (

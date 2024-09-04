@@ -18,7 +18,7 @@ import { LinkSelector } from "./selectors/LinkSelector";
 import { ColorSelector } from "./selectors/ColorSelector";
 import { TextButtons } from "./selectors/TextButtons";
 import { slashCommand, suggestionItems } from "./SlashCommand";
-import { Separator } from "~/components/novel/ui/Separator";
+import { Separator } from "~/components/ui/separator";
 
 export const defaultValue: JSONContent = {
   type: "doc",

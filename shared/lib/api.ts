@@ -1,9 +1,10 @@
-import { type Result, ok, error } from "shared/lib/result";
+import { type Result, ok, error } from "shared/types/result";
 
 export async function api<T>(
   url: string,
   options: RequestInit,
 ): Promise<Result<T>> {
+  // TODO: setup ky for requests?
   try {
     return fetch(url, options).then(async (response) => {
       if (!response.ok) {

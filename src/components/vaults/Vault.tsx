@@ -25,7 +25,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { ListNotionPages } from "./notion/ListNotionPages";
+import { ListNotionPages } from "../notion/ListNotionPages";
 import { type Page } from "functions/src/lib/notion";
 
 type Props = {
@@ -36,7 +36,7 @@ type Props = {
 };
 
 export function Vault({ name, id, notionPages, isNotionPagesLoading }: Props) {
-  const link = `/${id}`; // TODO: Add proper links
+  const link = `/vaults/${id}`; // TODO: Add proper links
   const $delete = api.user.vaults[":vaultId"].$delete;
 
   const mutation = useMutation<

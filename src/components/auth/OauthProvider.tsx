@@ -38,17 +38,18 @@ export function OauthProvider({ children }: { children: React.ReactNode }) {
   const hasFiredMutationRef = useRef(false);
   const mutation = useFetchTokenMutation(hasFiredMutationRef);
 
-  const pageIsAuthing =
+  const disableOAuth =
     window.location.href.includes("/auth/sign-in") ||
-    window.location.href.includes("/auth/callback");
+    window.location.href.includes("/auth/callback") ||
+    window.location.href.includes("/vaults/");
 
   useEffect(() => {
-    if (pageIsAuthing || hasFiredMutationRef.current) return;
+    if (disableOAuth || hasFiredMutationRef.current) return;
     mutation.mutate(undefined);
     hasFiredMutationRef.current = true;
   }, []);
 
-  if (pageIsAuthing) {
+  if (disableOAuth) {
     return <>{children}</>;
   }
 
@@ -57,7 +58,7 @@ export function OauthProvider({ children }: { children: React.ReactNode }) {
       {accessToken != null && children}
       {accessToken == null && (
         <div>
-          {/* Make better loading later... */}
+          {/* TODO: better loading screen */}
           <button onClick={() => console.log(accessToken, mutation.isPending)}>
             Loading...
           </button>

@@ -14,7 +14,8 @@ const aud = ["https://vault-block.com"];
 
 const app = factory.createApp();
 
-const unauthorized = (c: Context) => c.json({ error: "Unauthorized" }, 401);
+export const unauthorized = (c: Context) =>
+  c.json({ error: "Unauthorized" }, 401);
 
 export const authMiddleware: MiddlewareHandler = async (c: Context, next) => {
   const headerToken = c.req.header().authorization;

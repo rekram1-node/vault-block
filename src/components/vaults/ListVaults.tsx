@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { Vault } from "./Vault";
-import { Create } from "./vaults/Create";
+import { CreateVault } from "./CreateVault";
 import { api, keys } from "~/lib/query";
 import { VaultSkeleton } from "./VaultSkeleton";
 import { type Page } from "functions/src/lib/notion";
@@ -76,7 +76,7 @@ export default function ListVaults() {
               Manage your vaults and view their content.
             </CardDescription>
           </div>
-          <Create />
+          <CreateVault />
         </div>
       </CardHeader>
       <CardContent>

@@ -28,7 +28,7 @@ import {
 } from "~/lib/encryption/encryption";
 import { defaultValue } from "~/components/novel/Editor";
 
-export function Create() {
+export function CreateVault() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
@@ -51,9 +51,6 @@ export function Create() {
       return {};
     },
     onSuccess: () => {
-      // TODO: Why does a 400 constitute a success??
-      // TODO... should ky throw for authenticated requests? << probably
-      // Better error handling needed
       void queryClient.invalidateQueries({
         queryKey: keys.vaults,
       });

@@ -1,5 +1,5 @@
 import { TableCell, TableRow } from "~/components/ui/table";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 
 export function VaultSkeleton() {
   return (

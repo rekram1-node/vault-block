@@ -1,4 +1,4 @@
-import ListVaults from "~/components/ListVaults";
+import ListVaults from "~/components/vaults/ListVaults";
 
 export function Home() {
   console.log("Environment Variables:", import.meta.env);

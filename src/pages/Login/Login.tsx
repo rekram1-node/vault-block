@@ -1,5 +1,5 @@
 import { noAuthApi } from "~/lib/query";
-import { LoginForm } from "~/components/LoginForm";
+import { LoginForm } from "~/components/auth/LoginForm";
 import { toast } from "sonner";
 
 export function Login() {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { debounce } from "lodash";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
-import { api, queryClient } from "~/lib/query";
+import { api, keys, queryClient } from "~/lib/query";
 import {
   Dialog,
   DialogContent,
@@ -43,7 +43,7 @@ export function Create() {
     Error,
     InferRequestType<typeof $post>["json"]
   >({
-    mutationKey: ["vaults"],
+    mutationKey: keys.vaults,
     mutationFn: async (vault) => {
       await $post({
         json: vault,
@@ -52,8 +52,11 @@ export function Create() {
     },
     onSuccess: () => {
       // TODO: Why does a 400 constitute a success??
+      // TODO... should ky throw for authenticated requests? << probably
       // Better error handling needed
-      // queryClient.invalidateQueries()
+      void queryClient.invalidateQueries({
+        queryKey: keys.vaults,
+      });
       toast.success("Successfully created vault");
       setOpen(false);
     },
@@ -62,7 +65,6 @@ export function Create() {
         "Failed to create vault, encountered error: " + error.message,
       );
     },
-    // onSettled: () => {},
   });
 
   const validPassword = password?.match(

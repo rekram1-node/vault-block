@@ -12,10 +12,12 @@ import {
 import { TableCell, TableRow } from "~/components/ui/table";
 
 type Props = {
+  id: string;
   name: string;
+  notionPageId?: string;
 };
 
-export function Vault({ name }: Props) {
+export function Vault({ name, id }: Props) {
   return (
     <TableRow>
       <TableCell className="font-medium">{name}</TableCell>

@@ -86,3 +86,7 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+export const keys = {
+  vaults: ["vaults"],
+};

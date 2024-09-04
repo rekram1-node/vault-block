@@ -17,11 +17,11 @@ import {
 } from "~/components/ui/table";
 import { Vault } from "./Vault";
 import { Create } from "./vaults/Create";
-import { api } from "~/lib/query";
+import { api, keys } from "~/lib/query";
 
 export default function ListVaults() {
   const { data: vaults } = useQuery({
-    queryKey: ["vaults"],
+    queryKey: keys.vaults,
     queryFn: async () => {
       const res = await api.user.vaults.$get();
       return await res.json();
@@ -57,22 +57,19 @@ export default function ListVaults() {
               <TableHead className="hidden w-[200px] md:table-cell">
                 Updated at
               </TableHead>
-              {/* <TableHead className="text-right"> */}
               <TableHead className="w-[100px] text-right">
                 <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <Vault name="Some Vault" />
-            <Vault name="Hypernova Headphones" />
-            <Vault name="AeroGlow Desk Lamp" />
-            <Vault name="TechTonic Energy Drink" />
-            {/* <Vault name="Gamer Gear Pro Controller" /> */}
+            {vaults?.map((v, i) => <Vault key={i} name={v.name} id={v.id} />)}
+            {/* TODO: Add skeleton and loading state */}
           </TableBody>
         </Table>
       </CardContent>
       {/* <CardFooter> */}
+      {/* TODO: Make the counter stick in bottom right corner */}
       <CardFooter className="">
         <div className="text-xs text-muted-foreground">
           Showing <strong>1-10</strong> of <strong>32</strong> products

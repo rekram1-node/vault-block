@@ -106,6 +106,7 @@ export default function ListVaults() {
                   key={i}
                   name={v.name}
                   id={v.id}
+                  updatedAt={v.updatedAt}
                   notionPages={notionPages}
                   isNotionPagesLoading={isGetNotionPagesLoading}
                 />

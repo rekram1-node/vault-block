@@ -5,20 +5,23 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  CardContent,
 } from "~/components/ui/card";
 import { NotionIcon } from "~/components/icons/Icons";
 
 export function LoginForm({ onClick }: { onClick: () => void }) {
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
         <CardDescription>
-          Login to Vault Block to manage your vaults.
+          Enter your email below to login to your account.
         </CardDescription>
       </CardHeader>
+      <CardContent className="grid gap-4"></CardContent>
       <CardFooter>
-        <Button className="w-full" onClick={onClick} variant="outline">
+        {/* Forcing text to be black to match better with Notion Logo */}
+        <Button className="w-full text-black" onClick={onClick}>
           <NotionIcon />
           Continue with Notion
         </Button>

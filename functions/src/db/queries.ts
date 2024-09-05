@@ -39,6 +39,7 @@ export class Queries {
         id: vaultsTable.id,
         name: vaultsTable.name,
         notionPageId: vaultsTable.notionPageId,
+        updatedAt: vaultsTable.updated_at,
       })
       .from(vaultsTable)
       .where(eq(vaultsTable.userId, userId))

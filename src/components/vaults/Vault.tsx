@@ -27,15 +27,23 @@ import {
 } from "~/components/ui/popover";
 import { ListNotionPages } from "../notion/ListNotionPages";
 import { type Page } from "functions/src/lib/notion";
+import { formatToLocalDateTime } from "shared/lib/time";
 
 type Props = {
   id: string;
   name: string;
+  updatedAt: string;
   notionPages?: Page[];
   isNotionPagesLoading: boolean;
 };
 
-export function Vault({ name, id, notionPages, isNotionPagesLoading }: Props) {
+export function Vault({
+  name,
+  id,
+  updatedAt,
+  notionPages,
+  isNotionPagesLoading,
+}: Props) {
   const link = `/vaults/${id}`; // TODO: Add proper links
   const $delete = api.user.vaults[":vaultId"].$delete;
 
@@ -66,7 +74,7 @@ export function Vault({ name, id, notionPages, isNotionPagesLoading }: Props) {
     <TableRow>
       <TableCell className="font-medium">{name}</TableCell>
       <TableCell className="hidden md:table-cell">
-        2023-07-12 10:42 AM
+        {formatToLocalDateTime(updatedAt)}
       </TableCell>
       {/* <TableCell> */}
       <TableCell className="w-[150px] pr-4 text-right">

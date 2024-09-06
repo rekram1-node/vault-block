@@ -66,6 +66,7 @@ const client = hc<AppType>("/", {
   },
 });
 
+// TODO: Better naming schemes, "public endpoints" shouldn't use default auth...
 export const api = client.api;
 export const noAuthApi = unauthedApi.api;
 
@@ -89,4 +90,5 @@ export const queryClient = new QueryClient({
 
 export const keys = {
   vaults: ["vaults"],
+  password: ["password"],
 };

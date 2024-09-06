@@ -3,13 +3,13 @@ import { Jwt } from "shared/types/jwt";
 import { noAuthApi } from "~/lib/query";
 
 interface AuthState {
-  accessToken: Jwt | null;
+  accessToken: Jwt | undefined;
   setAccessToken: (token: string) => Jwt;
-  refreshAccessToken: () => Promise<Jwt | null>;
+  refreshAccessToken: () => Promise<Jwt | undefined>;
 }
 
 export const useAuth = create<AuthState>((set) => ({
-  accessToken: null,
+  accessToken: undefined,
   setAccessToken: (token) => {
     const jwt = new Jwt(token);
     set({ accessToken: jwt });
@@ -19,7 +19,7 @@ export const useAuth = create<AuthState>((set) => ({
     const result = await noAuthApi.auth.token.$post();
     if (result.status === 401 || !result.ok) {
       window.location.href = "/auth/sign-in";
-      return null;
+      return undefined;
     }
     const response = await result.json();
     const token = new Jwt(response.token);

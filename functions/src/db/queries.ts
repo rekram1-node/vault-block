@@ -78,7 +78,7 @@ export class Queries {
 
           encryptedVaultData: vaultsTable.encryptedVaultData,
           vaultIv: vaultsTable.vaultIv,
-          // hdf: vaultsTable.vaultSalt,
+          hdkfSalt: vaultsTable.hdkfSalt,
         })
         .from(vaultsTable)
         .where(eq(vaultsTable.id, id)),

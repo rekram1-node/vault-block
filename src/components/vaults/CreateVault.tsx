@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { debounce } from "lodash";
-import { useMutation } from "@tanstack/react-query";
-import { type InferRequestType, type InferResponseType } from "hono/client";
 import { toast } from "sonner";
 
+import { useMutation } from "~/hooks/useMutation";
 import { api, keys, queryClient } from "~/lib/query";
 import {
   Dialog,
@@ -33,28 +32,21 @@ export function CreateVault() {
   const [name, setName] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
   const [confirm, setConfirm] = useState<string | undefined>();
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [confirmError, setConfirmError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | undefined>();
+  const [confirmError, setConfirmError] = useState<string | undefined>();
 
   const $post = api.user.vaults.$post;
-
-  const mutation = useMutation<
-    InferResponseType<typeof $post>,
-    Error,
-    InferRequestType<typeof $post>["json"]
-  >({
+  const mutation = useMutation($post)({
     mutationKey: keys.vaults,
-    mutationFn: async (vault) => {
-      await $post({
-        json: vault,
-      });
+    mutationFn: async (args) => {
+      await $post(args);
       return {};
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: keys.vaults,
       });
-      toast.info("Successfully created vault");
+      toast.success("Successfully created vault");
       setOpen(false);
     },
     onError(error, _variables, _context) {
@@ -75,7 +67,7 @@ export function CreateVault() {
         "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, and a number.",
       );
     } else {
-      setPasswordError(null);
+      setPasswordError(undefined);
     }
   }, [password, validPassword]);
 
@@ -83,7 +75,7 @@ export function CreateVault() {
     if (confirm && !passwordsMatch) {
       setConfirmError("Passwords do not match.");
     } else {
-      setConfirmError(null);
+      setConfirmError(undefined);
     }
   }, [confirm, passwordsMatch]);
 
@@ -106,12 +98,14 @@ export function CreateVault() {
     );
 
     mutation.mutate({
-      id: vaultId,
-      name,
-      encryptedVaultData: encryptedData,
-      hdkfSalt: Uint8ArrayToBase64(hdkfSalt),
-      vaultIv: Uint8ArrayToBase64(vaultIv),
-      passwordHash: Uint8ArrayToBase64(masterPasswordHash),
+      json: {
+        id: vaultId,
+        name,
+        encryptedVaultData: encryptedData,
+        hdkfSalt: Uint8ArrayToBase64(hdkfSalt),
+        vaultIv: Uint8ArrayToBase64(vaultIv),
+        passwordHash: Uint8ArrayToBase64(masterPasswordHash),
+      },
     });
   };
 

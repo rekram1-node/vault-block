@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from "react";
-import { debounce } from "lodash";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { useMutation } from "~/hooks/useMutation";
@@ -11,20 +10,15 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import { createId } from "shared/lib/createId";
 import {
   createSalt,
-  deriveMasterKey,
-  deriveMasterPasswordHash,
-  deriveStretchedMasterKey,
   encryptData,
   Uint8ArrayToBase64,
 } from "~/lib/encryption/encryption";
@@ -40,17 +34,25 @@ import {
 import { useHashingWorker } from "~/hooks/useHashingWorker";
 import { CreateVaultButton } from "./CreateVaultButton";
 
-const checkPasswordsMatch = (password: string, confirm: string) => {
-  return password === confirm;
-};
+const formSchema = z
+  .object({
+    name: z.string().min(1, "Vault name is required"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .regex(
+        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/,
+        "Password must include an uppercase letter, a lowercase letter, and a number",
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export function CreateVault({ disabled }: { disabled: boolean }) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState<string | undefined>();
-  const [password, setPassword] = useState<string | undefined>();
-  const [confirm, setConfirm] = useState<string | undefined>();
-  const [passwordError, setPasswordError] = useState<string | undefined>();
-  const [confirmError, setConfirmError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
   const $post = api.user.vaults.$post;
@@ -66,8 +68,7 @@ export function CreateVault({ disabled }: { disabled: boolean }) {
       });
       toast.success("Successfully created vault");
       setOpen(false);
-      setPassword(undefined);
-      setConfirm(undefined);
+      form.reset();
     },
     onError(error, _variables, _context) {
       toast.error(
@@ -76,32 +77,18 @@ export function CreateVault({ disabled }: { disabled: boolean }) {
     },
   });
 
-  const validPassword = password?.match(
-    /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
-  );
-  const passwordsMatch = confirm && password === confirm;
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  useEffect(() => {
-    if (password && !validPassword) {
-      setPasswordError(
-        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, and a number.",
-      );
-    } else {
-      setPasswordError(undefined);
-    }
-  }, [password, validPassword]);
-
-  useEffect(() => {
-    if (confirm && !passwordsMatch) {
-      setConfirmError("Passwords do not match.");
-    } else {
-      setConfirmError(undefined);
-    }
-  }, [confirm, passwordsMatch]);
-
-  const onCreate = async () => {
+  const onCreate = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-    if (!password || !name) return;
+    const { name, password } = data;
 
     const vaultId = createId();
     const hdkfSalt = createSalt();
@@ -136,15 +123,27 @@ export function CreateVault({ disabled }: { disabled: boolean }) {
     setIsLoading(false);
   };
 
+  const { watch } = form;
+
+  const name = watch("name");
+  const password = watch("password");
+  const confirmPassword = watch("confirmPassword");
+
   const isDisabled =
-    name === undefined ||
-    password === undefined ||
-    confirm === undefined ||
-    !validPassword ||
-    !passwordsMatch;
+    !name || !password || !confirmPassword || isPending || isLoading;
+
+  const loadingText = isLoading ? "Hashing Password..." : "Creating...";
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          form.reset();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <CreateVaultButton disabled={disabled} />
       </DialogTrigger>
@@ -155,56 +154,66 @@ export function CreateVault({ disabled }: { disabled: boolean }) {
             Set the name and password for your Vault here.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="name">Vault Name</Label>
-            <Input
-              id="name"
-              type="text"
-              required
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              required
-              onChange={debounce(
-                (e: React.ChangeEvent<HTMLInputElement>) =>
-                  setPassword(e.target.value),
-                600,
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onCreate)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Vault Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
-            {passwordError && (
-              <p className="text-sm text-red-500">{passwordError}</p>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="confirm-password">Confirm Password</Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              placeholder="••••••••"
-              required
-              onChange={debounce(
-                (e: React.ChangeEvent<HTMLInputElement>) =>
-                  setConfirm(e.target.value),
-                600,
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
-            {confirmError && (
-              <p className="text-sm text-red-500">{confirmError}</p>
-            )}
-          </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit" disabled={isDisabled} onClick={onCreate}>
-            Create
-          </Button>
-        </DialogFooter>
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isDisabled}
+                loading={isPending || isLoading}
+                loadingText={loadingText}
+              >
+                Create
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

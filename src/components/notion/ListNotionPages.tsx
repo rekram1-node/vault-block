@@ -46,7 +46,6 @@ function NotionPage({ page, vaultId }: { page: Page; vaultId: string }) {
         pageId: page.id,
       },
     });
-    console.log(`You selected page ${page.name}`);
   };
 
   return (
@@ -104,7 +103,7 @@ export function ListNotionPages({ pages, isLoading, vaultId }: Props) {
               </DropdownMenuItem>
             ))
           : itemsToDisplay?.map((page) => (
-              <NotionPage page={page} vaultId={vaultId} />
+              <NotionPage page={page} vaultId={vaultId} key={page.id} />
             ))}
 
         {!isExpanded && numPages > 3 && (

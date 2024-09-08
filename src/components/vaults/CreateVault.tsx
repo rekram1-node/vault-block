@@ -38,8 +38,13 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { useHashingWorker } from "~/hooks/useHashingWorker";
+import { CreateVaultButton } from "./CreateVaultButton";
 
-export function CreateVault() {
+const checkPasswordsMatch = (password: string, confirm: string) => {
+  return password === confirm;
+};
+
+export function CreateVault({ disabled }: { disabled: boolean }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
@@ -74,7 +79,7 @@ export function CreateVault() {
   const validPassword = password?.match(
     /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
   );
-  const passwordsMatch = password === confirm;
+  const passwordsMatch = confirm && password === confirm;
 
   useEffect(() => {
     if (password && !validPassword) {
@@ -141,7 +146,7 @@ export function CreateVault() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="right-4 top-4">New Vault</Button>
+        <CreateVaultButton disabled={disabled} />
       </DialogTrigger>
       <DialogContent className="md:max-w-[525px]">
         <DialogHeader>

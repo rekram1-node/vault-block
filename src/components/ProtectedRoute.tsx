@@ -28,8 +28,6 @@ export function ProtectedRoute({
     void fetch();
   }, [accessToken]);
 
-  console.log(redirect);
-  console.log(accessToken);
   if (redirect) {
     return <Redirect to="/auth/sign-in" />;
   }

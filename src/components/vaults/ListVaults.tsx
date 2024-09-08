@@ -65,6 +65,12 @@ export default function ListVaults() {
   const numVaults = vaults?.length ?? 0;
   const totalPages = Math.ceil(numVaults / vaultsPerPage);
 
+  useEffect(() => {
+    if (currentPage >= totalPages && currentPage > 0) {
+      setCurrentPage(totalPages - 1);
+    }
+  }, [vaults, currentPage, totalPages]);
+
   const handlePrevPage = () => {
     setCurrentPage((prev) => Math.max(0, prev - 1));
   };
@@ -78,6 +84,8 @@ export default function ListVaults() {
     (currentPage + 1) * vaultsPerPage,
   );
 
+  const creationDisabled = numVaults >= import.meta.env.VITE_MAX_VAULTS;
+
   return (
     <Card className="relative h-auto max-h-[80vh] w-2/3 overflow-y-auto p-4">
       <CardHeader>
@@ -88,7 +96,7 @@ export default function ListVaults() {
               Manage your vaults and view their content.
             </CardDescription>
           </div>
-          <CreateVault />
+          <CreateVault disabled={creationDisabled} />
         </div>
       </CardHeader>
       <CardContent>
@@ -114,9 +122,9 @@ export default function ListVaults() {
                 </>
               )}
               {!isGetVaultsLoading &&
-                paginatedVaults?.map((v, i) => (
+                paginatedVaults?.map((v) => (
                   <Vault
-                    key={i}
+                    key={v.id}
                     name={v.name}
                     id={v.id}
                     updatedAt={v.updatedAt}

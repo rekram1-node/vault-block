@@ -5,35 +5,35 @@
 /* TODO: light theme needs major work... */
 @layer base {
   :root {
-    --background: 240 27% 85%;
-    --foreground: 240 25% 20%;
-    --muted: 240 2.82% 64.38%;
-    --muted-foreground: 240 11.49% 43.47%;
-    --popover: 280.75 28.09% 82.88%;
-    --popover-foreground: 240 14.45% 20%;
-    --card: 240 28% 90%;
-    --card-foreground: 240 25% 20%;
-    --border: 240 2.27% 55.92%;
-    --input: 240 25.32% 75.28%;
+    --background: 240 27% 94%;
+    --foreground: 240 25% 15%;
+    --muted: 240 5.32% 53.69%;
+    --muted-foreground: 240 11.49% 48.47%;
+    --popover: 280.75 39.58% 77.09%;
+    --popover-foreground: 240 14.45% 22%;
+    --card: 240 28% 95%;
+    --card-foreground: 240 25% 15%;
+    --border: 240 5.56% 48.1%;
+    --input: 240 25.32% 80.28%;
     --primary: 13 88% 58%;
     --primary-foreground: 240 21.24% 93.16%;
-    --secondary: 240 7.91% 69.93%;
-    --secondary-foreground: 240 25% 20%;
-    --accent: 271.7 31.69% 79.73%;
+    --secondary: 240 7.91% 74.93%;
+    --secondary-foreground: 240 25% 15%;
+    --accent: 271.7 31.69% 84.73%;
     --accent-foreground: 240 44.76% 18.07%;
     --destructive: 0 60.48% 53.29%;
-    --destructive-foreground: 0 15.95% 89.93%;
-    --ring: 198 39% 40%;
+    --destructive-foreground: 0 47.55% 91.2%;
+    --ring: 198 19.69% 45.63%;
     --radius: 0.5rem;
   }
 
   .dark {
     --background: 240 27% 14%;
     --foreground: 240 25% 87%;
-    --muted: 240 12.04% 43.94%;
+    --muted: 240 2% 27%;
     --muted-foreground: 240 10% 60%;
     --popover: 271.7 20.95% 43.88%;
-    --popover-foreground: 240 14.45% 82.02%;
+    --popover-foreground: 240 25% 87%;
     --card: 240 28% 19%;
     --card-foreground: 240 25% 87%;
     --border: 240 20% 24%;
@@ -46,7 +46,8 @@
     --accent-foreground: 240 46.43% 89.02%;
     --destructive: 0 60.48% 53.29%;
     --destructive-foreground: 0 100% 95%;
-    --ring: 198 39% 56%;
+    --ring: 198 23.58% 25.52%;
+    --radius: 0.5rem;
   }
 }
  

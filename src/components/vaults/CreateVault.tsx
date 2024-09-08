@@ -1,3 +1,6 @@
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
 import { debounce } from "lodash";
 import { toast } from "sonner";
@@ -26,6 +29,15 @@ import {
   Uint8ArrayToBase64,
 } from "~/lib/encryption/encryption";
 import { defaultValue } from "~/components/novel/Editor";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { useHashingWorker } from "~/hooks/useHashingWorker";
 
 export function CreateVault() {
   const [open, setOpen] = useState(false);
@@ -34,9 +46,10 @@ export function CreateVault() {
   const [confirm, setConfirm] = useState<string | undefined>();
   const [passwordError, setPasswordError] = useState<string | undefined>();
   const [confirmError, setConfirmError] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const $post = api.user.vaults.$post;
-  const mutation = useMutation($post)({
+  const { mutate, isPending } = useMutation($post)({
     mutationKey: keys.vaults,
     mutationFn: async (args) => {
       await $post(args);
@@ -48,6 +61,8 @@ export function CreateVault() {
       });
       toast.success("Successfully created vault");
       setOpen(false);
+      setPassword(undefined);
+      setConfirm(undefined);
     },
     onError(error, _variables, _context) {
       toast.error(
@@ -80,33 +95,40 @@ export function CreateVault() {
   }, [confirm, passwordsMatch]);
 
   const onCreate = async () => {
+    setIsLoading(true);
     if (!password || !name) return;
 
     const vaultId = createId();
     const hdkfSalt = createSalt();
     const vaultIv = createSalt(12);
-    const masterKey = await deriveMasterKey(password, vaultId);
-    const stretchedKey = await deriveStretchedMasterKey(masterKey, hdkfSalt);
-    const masterPasswordHash = await deriveMasterPasswordHash(
+
+    const { stretchedMasterKey } = await useHashingWorker({
       password,
-      masterKey,
-    );
+      vaultId,
+      hdkfSalt,
+    });
+    if (!stretchedMasterKey) {
+      toast.error("Failed to hash password");
+      return;
+    }
+
     const encryptedData = await encryptData(
       JSON.stringify(defaultValue),
       vaultIv,
-      stretchedKey,
+      stretchedMasterKey,
     );
 
-    mutation.mutate({
+    mutate({
       json: {
         id: vaultId,
         name,
         encryptedVaultData: encryptedData,
         hdkfSalt: Uint8ArrayToBase64(hdkfSalt),
         vaultIv: Uint8ArrayToBase64(vaultIv),
-        passwordHash: Uint8ArrayToBase64(masterPasswordHash),
+        passwordHash: Uint8ArrayToBase64(stretchedMasterKey),
       },
     });
+    setIsLoading(false);
   };
 
   const isDisabled =

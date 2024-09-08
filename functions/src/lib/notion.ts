@@ -1,5 +1,6 @@
 import { type SearchPagesResponse } from "functions/src/types/notionSearchPagesResponse";
 import { ok, error } from "shared/types/result";
+import { type Page } from "shared/types/Page";
 import { api } from "shared/lib/api";
 import { type Context } from "functions/api/hono";
 
@@ -86,10 +87,4 @@ export class Notion {
     }
     return ok();
   }
-}
-
-export interface Page {
-  id: string;
-  url: string;
-  name: string;
 }

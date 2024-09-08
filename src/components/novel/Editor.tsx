@@ -5,9 +5,9 @@ import {
   EditorCommandItem,
   EditorCommandEmpty,
   EditorContent,
-  type JSONContent,
   EditorCommandList,
   EditorBubble,
+  type JSONContent,
 } from "novel";
 import { debounce } from "lodash";
 import { handleCommandNavigation } from "novel/extensions";

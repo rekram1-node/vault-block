@@ -13,8 +13,7 @@ export const useHashingWorker = (
     worker.postMessage(message);
 
     worker.addEventListener("message", (msg: MessageEvent<WorkerOutput>) => {
-      const { masterKey, masterPasswordHash } = msg.data;
-      resolve({ masterKey, masterPasswordHash });
+      resolve(msg.data);
       worker.terminate();
     });
 

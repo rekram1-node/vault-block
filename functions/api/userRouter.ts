@@ -20,9 +20,7 @@ const vaults = v
         encryptedVaultData: true,
         hdkfSalt: true,
         vaultIv: true,
-        // vaultSalt: true,
         passwordHash: true,
-        // passwordSalt: true,
       }),
     ),
     async (c) => {
@@ -34,10 +32,8 @@ const vaults = v
         userId: c.var.userId,
         encryptedVaultData: body.encryptedVaultData,
         hdkfSalt: body.hdkfSalt,
-        // vaultSalt: body.vaultSalt,
         vaultIv: body.vaultIv,
         passwordHash: body.passwordHash,
-        // passwordSalt: body.passwordSalt,
       });
 
       return c.body(null, 201);
@@ -90,7 +86,6 @@ const notionRoutes = n
 
 // Endpoints only visible for the user regarding vaults
 // Other endpoints are available for anyone with the password
-// const internalVaultEndpoints = app
 const u = factory.createApp();
 
 const users = u.route("/vaults", vaults).route("/notion", notionRoutes);

@@ -89,6 +89,9 @@ export function PasswordForm({ vaultId, setIsLocked }: Props) {
         password: values.password,
         vaultId,
       });
+      if (!masterKey || !masterPasswordHash) {
+        throw new Error("failed to hash password");
+      }
       setKeys(masterKey, masterPasswordHash);
 
       mutate({
@@ -98,7 +101,7 @@ export function PasswordForm({ vaultId, setIsLocked }: Props) {
         },
       });
     } catch (e) {
-      console.error(e);
+      toast.error(String(e));
     }
     setIsLoading(false);
   };

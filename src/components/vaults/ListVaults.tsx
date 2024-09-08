@@ -1,5 +1,6 @@
+import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -15,16 +16,18 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { Button } from "~/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Vault } from "./Vault";
 import { CreateVault } from "./CreateVault";
 import { api, keys } from "~/lib/query";
 import { VaultSkeleton } from "./VaultSkeleton";
-import { type Page } from "functions/src/lib/notion";
 import { isErrorResponse } from "shared/types/ErrorResponse";
-import { useEffect } from "react";
-import { toast } from "sonner";
 
 export default function ListVaults() {
+  const [currentPage, setCurrentPage] = useState(0);
+  const vaultsPerPage = 5;
+
   const { data: vaults, isLoading: isGetVaultsLoading } = useQuery({
     queryKey: keys.vaults,
     queryFn: async () => {
@@ -59,19 +62,28 @@ export default function ListVaults() {
     }
   }, [error, isError]);
 
+  const numVaults = vaults?.length ?? 0;
+  const totalPages = Math.ceil(numVaults / vaultsPerPage);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
+  };
+
+  const paginatedVaults = vaults?.slice(
+    currentPage * vaultsPerPage,
+    (currentPage + 1) * vaultsPerPage,
+  );
+
   return (
-    // The transparent borders and background may not be ideal
-    // bg-transparent border-transparent
-    <Card className="h-auto max-h-[80vh] w-2/3 overflow-y-auto p-4">
+    <Card className="relative h-auto max-h-[80vh] w-2/3 overflow-y-auto p-4">
       <CardHeader>
-        {/* <CardTitle>Your Vaults</CardTitle>
-        <CardDescription>
-          Manage your vaults and view their content.
-        </CardDescription>
-        <Button>Create</Button> */}
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle>Your Vaults</CardTitle>
+            <CardTitle className="pb-1">Your Vaults</CardTitle>
             <CardDescription>
               Manage your vaults and view their content.
             </CardDescription>
@@ -80,45 +92,78 @@ export default function ListVaults() {
         </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead className="hidden w-[200px] md:table-cell">
-                Updated at
-              </TableHead>
-              <TableHead className="w-[100px] text-right">
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isGetVaultsLoading && (
-              <>
-                <VaultSkeleton />
-                <VaultSkeleton />
-                <VaultSkeleton />
-              </>
-            )}
-            {!isGetVaultsLoading &&
-              vaults?.map((v, i) => (
-                <Vault
-                  key={i}
-                  name={v.name}
-                  id={v.id}
-                  updatedAt={v.updatedAt}
-                  notionPages={notionPages}
-                  isNotionPagesLoading={isGetNotionPagesLoading}
-                />
-              ))}
-          </TableBody>
-        </Table>
+        {(isGetVaultsLoading || numVaults > 0) && (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead className="hidden w-[200px] md:table-cell">
+                  Updated at
+                </TableHead>
+                <TableHead className="w-[100px] text-right">
+                  <span className="sr-only">Actions</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isGetVaultsLoading && (
+                <>
+                  <VaultSkeleton />
+                  <VaultSkeleton />
+                  <VaultSkeleton />
+                </>
+              )}
+              {!isGetVaultsLoading &&
+                paginatedVaults?.map((v, i) => (
+                  <Vault
+                    key={i}
+                    name={v.name}
+                    id={v.id}
+                    updatedAt={v.updatedAt}
+                    notionPages={notionPages}
+                    isNotionPagesLoading={isGetNotionPagesLoading}
+                  />
+                ))}
+            </TableBody>
+          </Table>
+        )}
+        {!isGetVaultsLoading && numVaults == 0 && (
+          <div className="inset-0 mt-10 flex items-center justify-center pt-10">
+            <div className="text-center">
+              <p className="text-lg font-semibold">Create your first Vault!</p>
+              <p className="text-md text-muted-foreground">
+                You don't have any vaults yet. Start by creating a new one.
+              </p>
+            </div>
+          </div>
+        )}
       </CardContent>
-      {/* <CardFooter> */}
-      {/* TODO: Make the counter stick in bottom right corner */}
-      <CardFooter className="">
-        <div className="text-xs text-muted-foreground">
-          Showing <strong>1-10</strong> of <strong>32</strong> products
+      <CardFooter className="absolute bottom-0 right-0">
+        <div className="pr-4 text-xs text-muted-foreground">
+          Showing{" "}
+          <strong>
+            {numVaults === 0 ? 0 : currentPage * vaultsPerPage + 1}-
+            {Math.min((currentPage + 1) * vaultsPerPage, numVaults)}
+          </strong>{" "}
+          of <strong>{numVaults}</strong> vaults
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handlePrevPage}
+            disabled={currentPage === 0}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages - 1}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </CardFooter>
     </Card>

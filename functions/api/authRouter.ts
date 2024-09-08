@@ -78,7 +78,9 @@ const auth = app
       );
       if (!isValid) return unauthorized(c);
 
-      const realToken = await c.env.VAULT_BLOCK.get(refreshToken);
+      const realToken = await c.env.VAULT_BLOCK.get(
+        getKVKey(t.payload.sub, refreshToken),
+      );
       if (!realToken) {
         console.log("token doesn't exist...");
         return unauthorized(c);
@@ -151,9 +153,13 @@ const auth = app
       );
 
       // add cookie to cache
-      await c.env.VAULT_BLOCK.put(newRefreshToken, "true", {
-        expiration: refreshTokenExpiration,
-      });
+      await c.env.VAULT_BLOCK.put(
+        getKVKey(owner.user.id, newRefreshToken),
+        "true",
+        {
+          expiration: refreshTokenExpiration,
+        },
+      );
 
       setCookie(c, refresh_token_cookie, newRefreshToken, {
         path: "/",
@@ -173,9 +179,13 @@ const auth = app
     const cookie = getCookie(c, refresh_token_cookie);
     if (cookie) {
       deleteCookie(c, refresh_token_cookie);
-      await c.env.VAULT_BLOCK.delete(cookie);
+      await c.env.VAULT_BLOCK.delete(getKVKey(c.var.userId, cookie));
     }
     return new Response(null, { status: 200 });
   });
 
 export const authRouter = auth;
+
+function getKVKey(userId: string, token: string) {
+  return `${userId}:${token}`;
+}

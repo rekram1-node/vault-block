@@ -24,6 +24,7 @@ interface VaultState extends Omit<Vault, "iv" | "hdkfSalt"> {
     iv: string,
     hdkfSalt: string,
   ) => Promise<void>;
+  clear: () => void;
 }
 
 export const usePublicVault = create<VaultState>((set, get) => ({
@@ -58,6 +59,18 @@ export const usePublicVault = create<VaultState>((set, get) => ({
       iv: Base64ToUint8Array(iv),
       hdkfSalt: Base64ToUint8Array(hdkfSalt),
       stretchedMasterKey,
+    });
+  },
+
+  clear: () => {
+    set({
+      name: undefined,
+      encryptedContent: undefined,
+      iv: undefined,
+      hdkfSalt: undefined,
+      masterKey: undefined,
+      masterPasswordHash: undefined,
+      stretchedMasterKey: undefined,
     });
   },
 }));

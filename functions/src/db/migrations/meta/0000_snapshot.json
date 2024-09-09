@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ec7054cd-fd0d-4cb0-8512-fc6517d478c2",
+  "id": "38696061-b0ed-455f-a7c1-018537f5176b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "vaults": {
@@ -50,8 +50,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "encrypted_vault_data": {
-          "name": "encrypted_vault_data",
+        "vault_data": {
+          "name": "vault_data",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

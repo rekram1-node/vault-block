@@ -7,11 +7,17 @@
   can access outside of Notion.
 */
 import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
+import { applyPatch, type Operation } from "rfc6902";
 
 import { factory } from "functions/api/hono";
 import { VaultSchema } from "functions/src/types/vault";
+import { OperationsSchema } from "functions/src/types/operation";
 import { unauthorized } from "./authRouter";
-import { z } from "zod";
+
+const vaultIdSchema = z.object({
+  vaultId: VaultSchema._def.shape().id,
+});
 
 const app = factory.createApp();
 
@@ -22,12 +28,7 @@ const vaults = app
 
   .post(
     "/:vaultId/validate",
-    zValidator(
-      "param",
-      z.object({
-        vaultId: VaultSchema._def.shape().id,
-      }),
-    ),
+    zValidator("param", vaultIdSchema),
     zValidator(
       "json",
       VaultSchema.pick({
@@ -49,24 +50,62 @@ const vaults = app
         return unauthorized(c);
       }
 
-      if (!vault.encryptedVaultData || !vault.vaultIv || !vault.hdkfSalt) {
+      if (!vault.vaultData || !vault.vaultIv || !vault.hdkfSalt) {
         console.error("unexpected application state:", vault);
         return c.json({ error: "unexpected application state" }, 500);
       }
 
       return c.json({
         name: vault.name,
-        encryptedContent: vault.encryptedVaultData,
+        encryptedContent: vault.vaultData,
         iv: vault.vaultIv,
         hdkfSalt: vault.hdkfSalt,
       });
     },
   )
 
-  // TODO: design a way to do partial updates rather
-  // than replacements (potentially not necessary...)
-  .put("/:vaultId/content", async (c) => {
-    return c.json({});
-  });
+  .post(
+    "/:vaultId/content",
+    zValidator("param", vaultIdSchema),
+    zValidator("json", OperationsSchema),
+    async (c) => {
+      const { vaultId } = c.req.valid("param");
+      const operations = c.req.valid("json") as Operation[];
+
+      if (operations.length === 0) {
+        return c.body(null, 204);
+      }
+
+      const vault = await c.var.db.readVaultData(vaultId);
+      if (!vault) {
+        // Same reasoning as previous 401 instead of 404
+        return unauthorized(c);
+      }
+
+      if (!vault.vaultData) {
+        return c.json(
+          { error: "invalid application state: null vaultData" },
+          500,
+        );
+      }
+
+      // TODO: do patches in sqlite
+      const patchResults = applyPatch(vault.vaultData, operations);
+      for (const result of patchResults) {
+        if (result !== null) {
+          return c.json(
+            {
+              error: "failed to apply patch: " + JSON.stringify(result),
+            },
+            400,
+          );
+        }
+      }
+      // TODO: error handling?
+      await c.var.db.updateVault(vaultId, vault.vaultData);
+
+      return c.body(null, 204);
+    },
+  );
 
 export const vaultRouter = vaults;

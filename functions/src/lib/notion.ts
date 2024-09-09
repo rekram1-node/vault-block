@@ -23,16 +23,6 @@ export class Notion {
     this.embeddedBaseUrl = c.env.VAULT_BLOCK_URL ?? url.origin;
   }
 
-  // static async New(clerkUserId: string, clerkSecretKey: string) {
-  //   const clerk = new Clerk(clerkSecretKey);
-  //   const token = await clerk.readToken(clerkUserId);
-  //   if (!token.isOk) {
-  //     return error(new Error("failed to read token", { cause: token.error }));
-  //   }
-
-  //   return ok(new Notion(token.data));
-  // }
-
   async ReadPages() {
     try {
       const url = this.baseUrl + "/search";

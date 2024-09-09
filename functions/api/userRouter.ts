@@ -26,11 +26,16 @@ const vaults = v
     async (c) => {
       const body = c.req.valid("json");
 
+      const numVaults = await c.var.db.readNumberOfVaults(c.var.userId);
+      if (numVaults >= c.env.MAX_PAGES) {
+        return c.json({ error: "max number of vaults reached" }, 403);
+      }
+
       await c.var.db.createVault({
         id: body.id,
         name: body.name,
         userId: c.var.userId,
-        encryptedVaultData: body.encryptedVaultData,
+        vaultData: body.encryptedVaultData,
         hdkfSalt: body.hdkfSalt,
         vaultIv: body.vaultIv,
         passwordHash: body.passwordHash,

@@ -1,4 +1,26 @@
+import { type JSONContent } from "novel";
 import { z } from "zod";
+
+const jsonContentSchema: z.ZodSchema<JSONContent> = z.lazy(() =>
+  z.record(z.any()).and(
+    z.object({
+      type: z.string().optional(),
+      attrs: z.record(z.any()).optional(),
+      content: z.array(jsonContentSchema).optional(),
+      marks: z
+        .array(
+          z.record(z.any()).and(
+            z.object({
+              type: z.string(),
+              attrs: z.record(z.any()).optional(),
+            }),
+          ),
+        )
+        .optional(),
+      text: z.string().optional(),
+    }),
+  ),
+);
 
 export const VaultSchema = z.object({
   // Automatically created upon insertion
@@ -12,10 +34,8 @@ export const VaultSchema = z.object({
   notionPageId: z.string(),
 
   // Fields added when Vault is initialized
-  encryptedVaultData: z.string(),
+  encryptedVaultData: jsonContentSchema,
   hdkfSalt: z.string().base64(),
-  // vaultSalt: z.instanceof(Uint8Array),
   vaultIv: z.string().base64(),
   passwordHash: z.string().base64(),
-  // passwordSalt: z.instanceof(Uint8Array),
 });

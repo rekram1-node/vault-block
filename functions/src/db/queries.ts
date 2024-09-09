@@ -1,6 +1,7 @@
 import { type drizzle } from "drizzle-orm/libsql";
 import { and, count, desc, eq } from "drizzle-orm";
 import { type InsertVault, vaultsTable } from "./schema";
+import { type JSONContent } from "novel";
 
 type DbType = ReturnType<typeof drizzle>;
 
@@ -22,7 +23,7 @@ export class Queries {
       this.db
         .update(vaultsTable)
         .set({
-          encryptedVaultData: data.encryptedVaultData,
+          vaultData: JSON.parse(data.vaultData) as JSONContent,
           vaultIv: data.vaultIv,
           // vaultSalt: data.vaultSalt,
           passwordHash: data.passwordHash,
@@ -58,17 +59,6 @@ export class Queries {
     return result?.value ?? 0;
   }
 
-  // async readPasswordSalt(id: string) {
-  //   return getFirstElement(
-  //     this.db
-  //       .select({
-  //         passwordSalt: vaultsTable.passwordSalt,
-  //       })
-  //       .from(vaultsTable)
-  //       .where(eq(vaultsTable.id, id)),
-  //   );
-  // }
-
   async readVault(id: string) {
     return getFirstElement(
       this.db
@@ -76,9 +66,20 @@ export class Queries {
           name: vaultsTable.name,
           passwordHash: vaultsTable.passwordHash,
 
-          encryptedVaultData: vaultsTable.encryptedVaultData,
+          vaultData: vaultsTable.vaultData,
           vaultIv: vaultsTable.vaultIv,
           hdkfSalt: vaultsTable.hdkfSalt,
+        })
+        .from(vaultsTable)
+        .where(eq(vaultsTable.id, id)),
+    );
+  }
+
+  async readVaultData(id: string) {
+    return getFirstElement(
+      this.db
+        .select({
+          vaultData: vaultsTable.vaultData,
         })
         .from(vaultsTable)
         .where(eq(vaultsTable.id, id)),
@@ -91,18 +92,18 @@ export class Queries {
       .where(and(eq(vaultsTable.id, id), eq(vaultsTable.userId, userId)));
   }
 
-  async updateVault(id: string, data: string) {
+  async updateVault(id: string, data: JSONContent) {
     return this.db
       .update(vaultsTable)
       .set({
-        encryptedVaultData: data,
+        vaultData: data,
       })
       .where(eq(vaultsTable.id, id));
   }
 }
 
 interface InitializeData {
-  encryptedVaultData: string;
+  vaultData: string;
   vaultIv: string;
 
   passwordHash: string;

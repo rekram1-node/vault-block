@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, index } from "drizzle-orm/sqlite-core";
 import { createId } from "shared/lib/createId";
+import { type JSONContent } from "novel";
 
 export const vaultsTable = sqliteTable(
   "vaults",
@@ -23,13 +24,11 @@ export const vaultsTable = sqliteTable(
     notionPageId: text("notion_page_id").unique(),
 
     // added during initialization
-    encryptedVaultData: text("encrypted_vault_data"),
+    vaultData: text("vault_data", { mode: "json" }).$type<JSONContent>(),
     hdkfSalt: text("hdkf_salt"),
-    // vaultSalt: text("vault_salt").$type<Uint8Array>(),
     vaultIv: text("vault_iv"),
 
     passwordHash: text("password_hash"),
-    // passwordSalt: blob("password_salt").$type<Uint8Array>(),
   },
   (table) => {
     return {

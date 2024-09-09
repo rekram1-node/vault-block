@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { useParams } from "wouter";
 import { type JSONContent } from "novel";
 import { LockIcon } from "lucide-react";
+import { toast } from "sonner";
+import { createPatch } from "rfc6902";
 
 import { PasswordForm } from "~/components/vaults/PasswordForm";
 import Editor from "~/components/novel/Editor";
 import { usePublicVault } from "~/hooks/usePublicVault";
-import { decryptData, encryptData } from "~/lib/encryption/encryption";
 import { ThemeToggle } from "~/components/novel/ThemeToggle";
 import { Button } from "~/components/ui/button";
-import { createPatch } from "rfc6902";
+import { decryptTextBlocks, encryptOperationArray } from "~/lib/workerPool";
+import { useMutation } from "~/hooks/useMutation";
+import { api } from "~/lib/query";
+import { isErrorResponse } from "shared/types/ErrorResponse";
 
 export function VaultPage() {
   const { encryptedContent, stretchedMasterKey, iv, name, clear } =
@@ -18,32 +22,57 @@ export function VaultPage() {
   const [isLocked, setIsLocked] = useState(true);
   const [decrypted, setDecrypted] = useState<JSONContent | undefined>();
 
+  const $update = api.vaults[":vaultId"].content.$post;
+  const { mutate } = useMutation($update)({
+    mutationFn: async (args) => {
+      const res = await $update(args);
+      if (!res.ok) {
+        const error = await res.json();
+        if (isErrorResponse(error)) {
+          throw new Error(error.error);
+        }
+      }
+
+      return res;
+    },
+    onError(error, variables, context) {
+      console.error(error, variables, context);
+      toast.error("Failed to save vault, encountered error: " + error.message);
+    },
+  });
+
   useEffect(() => {
-    if (isLocked || !encryptedContent || !iv || !stretchedMasterKey) return;
+    if (isLocked || !encryptedContent || !iv || !stretchedMasterKey) {
+      return;
+    }
     const decrypt = async () => {
-      const content = await decryptData(
+      const decryptedBlocks = await decryptTextBlocks(
         encryptedContent,
         iv,
         stretchedMasterKey,
+        10,
       );
-      setDecrypted(JSON.parse(content) as JSONContent);
+      setDecrypted(decryptedBlocks);
     };
     void decrypt();
   }, [isLocked, encryptedContent]);
 
   const autoSave = async (editorJson: JSONContent) => {
-    console.log(createPatch(decrypted, editorJson));
-    // console.log(editorJson);
+    if (!id) return;
+
     if (!iv || !stretchedMasterKey) {
-      console.error("reached invalid application state");
+      const error = "reached invalid application state";
+      console.error(error);
+      toast.error(error);
       return;
     }
-    const encrypted = await encryptData(
-      JSON.stringify(editorJson),
-      iv,
-      stretchedMasterKey,
-    );
-    // console.log(encrypted);
+
+    let patches = createPatch(decrypted, editorJson);
+    patches = await encryptOperationArray(patches, iv, stretchedMasterKey, 10);
+
+    mutate({ param: { vaultId: id }, json: patches });
+
+    setDecrypted(editorJson);
   };
 
   // TODO: delete prose and just use globals.css
@@ -65,21 +94,21 @@ export function VaultPage() {
                 size="icon"
                 title="Toggle Theme"
                 className="overflow-hidden rounded-full bg-transparent"
+                onClick={() => {
+                  setIsLocked(true);
+                  clear();
+                  setDecrypted(undefined);
+                }}
               >
-                <LockIcon
-                  className="h-6 cursor-pointer transition-colors hover:text-muted"
-                  onClick={() => {
-                    setIsLocked(true);
-                    clear();
-                  }}
-                />
+                <LockIcon className="h-6 cursor-pointer transition-colors hover:text-muted" />
               </Button>
             </div>
           </div>
-          <div className="flex-grow pb-10">
-            {/* was descrypted */}
-            <Editor initialValue={decrypted} onChange={autoSave} />
-          </div>
+          {decrypted !== undefined && (
+            <div className="flex-grow pb-10">
+              <Editor initialValue={decrypted} onChange={autoSave} />
+            </div>
+          )}
         </div>
       )}
     </>

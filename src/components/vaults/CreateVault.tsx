@@ -94,30 +94,24 @@ export function CreateVault({ disabled }: { disabled: boolean }) {
     const hdkfSalt = createSalt();
     const vaultIv = createSalt(12);
 
-    const { stretchedMasterKey } = await useHashingWorker({
+    const { stretchedMasterKey, masterPasswordHash } = await useHashingWorker({
       password,
       vaultId,
       hdkfSalt,
     });
-    if (!stretchedMasterKey) {
+    if (!stretchedMasterKey || !masterPasswordHash) {
       toast.error("Failed to hash password");
       return;
     }
-
-    const encryptedData = await encryptData(
-      JSON.stringify(defaultValue),
-      vaultIv,
-      stretchedMasterKey,
-    );
 
     mutate({
       json: {
         id: vaultId,
         name,
-        encryptedVaultData: encryptedData,
+        encryptedVaultData: defaultValue,
         hdkfSalt: Uint8ArrayToBase64(hdkfSalt),
         vaultIv: Uint8ArrayToBase64(vaultIv),
-        passwordHash: Uint8ArrayToBase64(stretchedMasterKey),
+        passwordHash: Uint8ArrayToBase64(masterPasswordHash),
       },
     });
     setIsLoading(false);

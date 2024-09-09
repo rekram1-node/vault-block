@@ -5,7 +5,7 @@ CREATE TABLE `vaults` (
 	`user_id` text NOT NULL,
 	`name` text NOT NULL,
 	`notion_page_id` text,
-	`encrypted_vault_data` text,
+	`vault_data` text,
 	`hdkf_salt` text,
 	`vault_iv` text,
 	`password_hash` text

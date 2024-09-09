@@ -1,3 +1,4 @@
+import { type JSONContent } from "novel";
 import { create } from "zustand";
 import {
   Base64ToUint8Array,
@@ -6,7 +7,7 @@ import {
 
 interface Vault {
   name: string | undefined;
-  encryptedContent: string | undefined;
+  encryptedContent: JSONContent | undefined;
   iv: string;
   hdkfSalt: string;
   masterKey: Uint8Array | undefined;
@@ -20,7 +21,7 @@ interface VaultState extends Omit<Vault, "iv" | "hdkfSalt"> {
   setKeys: (masterKey: Uint8Array, masterPasswordHash: Uint8Array) => void;
   setData: (
     name: string,
-    encryptedContent: string,
+    encryptedContent: JSONContent,
     iv: string,
     hdkfSalt: string,
   ) => Promise<void>;
@@ -45,7 +46,7 @@ export const usePublicVault = create<VaultState>((set, get) => ({
 
   setData: async (
     name: string,
-    encryptedContent: string,
+    encryptedContent: JSONContent,
     iv: string,
     hdkfSalt: string,
   ) => {

@@ -12,7 +12,7 @@ import { ThemeToggle } from "~/components/novel/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { decryptTextBlocks, encryptOperationArray } from "~/lib/workerPool";
 import { useMutation } from "~/hooks/useMutation";
-import { api } from "~/lib/query";
+import { vaultApi } from "~/lib/query";
 import { isErrorResponse } from "shared/types/ErrorResponse";
 
 export function VaultPage() {
@@ -22,7 +22,7 @@ export function VaultPage() {
   const [isLocked, setIsLocked] = useState(true);
   const [decrypted, setDecrypted] = useState<JSONContent | undefined>();
 
-  const $update = api.vaults[":vaultId"].content.$post;
+  const $update = vaultApi.vaults[":vaultId"].content.$post;
   const { mutate } = useMutation($update)({
     mutationFn: async (args) => {
       const res = await $update(args);

@@ -7,17 +7,12 @@
   can access outside of Notion.
 */
 import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
 import { applyPatch, type Operation } from "rfc6902";
 
 import { factory } from "functions/api/hono";
-import { VaultSchema } from "functions/src/types/vault";
+import { VaultSchema, VaultIdSchema } from "functions/src/types/vault";
 import { OperationsSchema } from "functions/src/types/operation";
 import { unauthorized } from "./authRouter";
-
-const vaultIdSchema = z.object({
-  vaultId: VaultSchema._def.shape().id,
-});
 
 const app = factory.createApp();
 
@@ -28,7 +23,7 @@ const vaults = app
 
   .post(
     "/:vaultId/validate",
-    zValidator("param", vaultIdSchema),
+    zValidator("param", VaultIdSchema),
     zValidator(
       "json",
       VaultSchema.pick({
@@ -66,7 +61,7 @@ const vaults = app
 
   .post(
     "/:vaultId/content",
-    zValidator("param", vaultIdSchema),
+    zValidator("param", VaultIdSchema),
     zValidator("json", OperationsSchema),
     async (c) => {
       const { vaultId } = c.req.valid("param");

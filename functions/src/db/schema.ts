@@ -3,6 +3,19 @@ import { integer, sqliteTable, text, index } from "drizzle-orm/sqlite-core";
 import { createId } from "shared/lib/createId";
 import { type JSONContent } from "novel";
 
+export const usersTable = sqliteTable("users", {
+  id: text("id").unique().primaryKey().notNull(),
+  created_at: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
+  updated_at: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$onUpdate(() => new Date()),
+});
+
+export type InsertUser = typeof usersTable.$inferInsert;
+export type SelectUser = typeof usersTable.$inferSelect;
+
 export const vaultsTable = sqliteTable(
   "vaults",
   {
@@ -32,7 +45,7 @@ export const vaultsTable = sqliteTable(
   },
   (table) => {
     return {
-      userIdIndex: index("vault_userId_idx").on(table.name),
+      userIdIndex: index("vault_userId_idx").on(table.userId),
     };
   },
 );

@@ -12,11 +12,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { createId } from "shared/lib/createId";
 import { createSalt, Uint8ArrayToBase64 } from "~/lib/encryption/encryption";
 import { defaultValue } from "~/components/novel/Editor";
 import {
@@ -28,11 +26,9 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { useHashingWorker } from "~/hooks/useHashingWorker";
-import { CreateVaultButton } from "./CreateVaultButton";
 
 const formSchema = z
   .object({
-    name: z.string().min(1, "Vault name is required"),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters long")
@@ -47,28 +43,33 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
-export function CreateVault({ disabled }: { disabled: boolean }) {
-  const [open, setOpen] = useState(false);
+type Props = {
+  vaultId: string;
+  open: boolean;
+  setOpen: (_: boolean) => void;
+};
+
+export function InitializeVault({ vaultId, open, setOpen }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const $post = api.user.vaults.$post;
-  const { mutate, isPending } = useMutation($post)({
+  const $init = api.user.vaults[":vaultId"].initialize.$post;
+  const { mutate, isPending } = useMutation($init)({
     mutationKey: keys.vaults,
     mutationFn: async (args) => {
-      await $post(args);
+      await $init(args);
       return {};
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: keys.vaults,
       });
-      toast.success("Successfully created vault");
+      toast.success("Successfully initialized vault");
       setOpen(false);
       form.reset();
     },
     onError(error, _variables, _context) {
       toast.error(
-        "Failed to create vault, encountered error: " + error.message,
+        "Failed to initialize vault, encountered error: " + error.message,
       );
     },
   });
@@ -76,17 +77,15 @@ export function CreateVault({ disabled }: { disabled: boolean }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onCreate = async (data: z.infer<typeof formSchema>) => {
+  const onInitialize = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-    const { name, password } = data;
+    const { password } = data;
 
-    const vaultId = createId();
     const hdkfSalt = createSalt();
     const vaultIv = createSalt(12);
 
@@ -101,9 +100,8 @@ export function CreateVault({ disabled }: { disabled: boolean }) {
     }
 
     mutate({
+      param: { vaultId },
       json: {
-        id: vaultId,
-        name,
         encryptedVaultData: defaultValue,
         hdkfSalt: Uint8ArrayToBase64(hdkfSalt),
         vaultIv: Uint8ArrayToBase64(vaultIv),
@@ -115,14 +113,12 @@ export function CreateVault({ disabled }: { disabled: boolean }) {
 
   const { watch } = form;
 
-  const name = watch("name");
   const password = watch("password");
   const confirmPassword = watch("confirmPassword");
 
-  const isDisabled =
-    !name || !password || !confirmPassword || isPending || isLoading;
+  const isDisabled = !password || !confirmPassword || isPending || isLoading;
 
-  const loadingText = isLoading ? "Hashing Password..." : "Creating...";
+  const loadingText = isLoading ? "Hashing Password..." : "Initializing...";
 
   return (
     <Dialog
@@ -134,31 +130,18 @@ export function CreateVault({ disabled }: { disabled: boolean }) {
         }
       }}
     >
-      <DialogTrigger asChild>
-        <CreateVaultButton disabled={disabled} />
-      </DialogTrigger>
       <DialogContent className="md:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Create a Vault</DialogTitle>
+          <DialogTitle>Initialize Your Vault</DialogTitle>
           <DialogDescription>
-            Set the name and password for your Vault here.
+            Set password for your Vault here.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onCreate)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Vault Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form
+            onSubmit={form.handleSubmit(onInitialize)}
+            className="space-y-8"
+          >
             <FormField
               control={form.control}
               name="password"
@@ -199,7 +182,7 @@ export function CreateVault({ disabled }: { disabled: boolean }) {
                 loading={isPending || isLoading}
                 loadingText={loadingText}
               >
-                Create
+                Initialize
               </Button>
             </div>
           </form>

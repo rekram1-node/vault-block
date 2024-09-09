@@ -1,7 +1,14 @@
 import { type drizzle } from "drizzle-orm/libsql";
 import { and, count, desc, eq } from "drizzle-orm";
-import { type InsertVault, vaultsTable } from "./schema";
+import {
+  type InsertVault,
+  type InsertUser,
+  vaultsTable,
+  usersTable,
+} from "./schema";
 import { type JSONContent } from "novel";
+
+// TODO: refactor this to be more professional
 
 type DbType = ReturnType<typeof drizzle>;
 
@@ -10,6 +17,19 @@ export class Queries {
 
   constructor(db: DbType) {
     this.db = db;
+  }
+
+  async createUser(data: InsertUser) {
+    return getFirstElement(this.db.insert(usersTable).values(data).returning());
+  }
+
+  async readUser(id: string) {
+    return getFirstElement(
+      this.db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(vaultsTable.id, id)),
+    );
   }
 
   async createVault(data: InsertVault) {
@@ -23,11 +43,10 @@ export class Queries {
       this.db
         .update(vaultsTable)
         .set({
-          vaultData: JSON.parse(data.vaultData) as JSONContent,
+          hdkfSalt: data.hdkfSalt,
           vaultIv: data.vaultIv,
-          // vaultSalt: data.vaultSalt,
+          vaultData: data.vaultData,
           passwordHash: data.passwordHash,
-          // passwordSalt: data.passwordSalt,
         })
         .where(eq(vaultsTable.id, id))
         .returning(),
@@ -41,6 +60,7 @@ export class Queries {
         name: vaultsTable.name,
         notionPageId: vaultsTable.notionPageId,
         updatedAt: vaultsTable.updated_at,
+        hdkfSalt: vaultsTable.hdkfSalt,
       })
       .from(vaultsTable)
       .where(eq(vaultsTable.userId, userId))
@@ -103,9 +123,9 @@ export class Queries {
 }
 
 interface InitializeData {
-  vaultData: string;
+  hdkfSalt: string;
   vaultIv: string;
-
+  vaultData: JSONContent;
   passwordHash: string;
 }
 

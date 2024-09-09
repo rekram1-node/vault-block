@@ -173,7 +173,7 @@ const auth = app
       });
     }
 
-    return c.json({ token });
+    return c.json({ token, newSignup: false });
   })
   .post("/logout", async (c) => {
     const cookie = getCookie(c, refresh_token_cookie);

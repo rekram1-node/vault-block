@@ -25,15 +25,15 @@ function Layout({ children }: { children: React.ReactNode }) {
 
 export function App() {
   return (
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
         <OauthProvider>
           <Layout>
             <Toaster />
             <Router />
           </Layout>
         </OauthProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

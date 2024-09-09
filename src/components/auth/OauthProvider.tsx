@@ -8,7 +8,7 @@ import { type ErrorResponse } from "shared/types/ErrorResponse";
 const useFetchTokenMutation = (
   hasFiredRef?: React.MutableRefObject<boolean>,
 ) => {
-  const { setAccessToken } = useAuth();
+  const { setAccessToken, setNewSignup } = useAuth();
   const [, navigate] = useLocation();
 
   const mutation = useMutation({
@@ -21,6 +21,7 @@ const useFetchTokenMutation = (
       return await res.json();
     },
     onSuccess: (data) => {
+      setNewSignup(data.newSignup);
       setAccessToken(data.token);
       if (hasFiredRef) hasFiredRef.current = false;
     },

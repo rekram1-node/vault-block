@@ -39,3 +39,7 @@ export const VaultSchema = z.object({
   vaultIv: z.string().base64(),
   passwordHash: z.string().base64(),
 });
+
+export const VaultIdSchema = z.object({
+  vaultId: VaultSchema._def.shape().id,
+});

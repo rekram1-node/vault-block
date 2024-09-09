@@ -68,10 +68,12 @@ const client = hc<AppType>("/", {
 
 // TODO: Better naming schemes, "public endpoints" shouldn't use default auth...
 export const api = client.api;
+export const vaultApi = client.api;
 export const noAuthApi = unauthedApi.api;
 
 const http_status_no_retry = [400, 403, 404];
 
+// TODO: figure out why this won't refetch dynamically...
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

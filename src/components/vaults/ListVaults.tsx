@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -22,9 +21,17 @@ import { Vault } from "./Vault";
 import { CreateVault } from "./CreateVault";
 import { api, keys } from "~/lib/query";
 import { VaultSkeleton } from "./VaultSkeleton";
-import { isErrorResponse } from "shared/types/ErrorResponse";
+import { type Page } from "shared/types/Page";
 
-export default function ListVaults() {
+type Props = {
+  notionPages: Page[] | undefined;
+  isGetNotionPagesLoading: boolean;
+};
+
+export default function ListVaults({
+  notionPages,
+  isGetNotionPagesLoading,
+}: Props) {
   const [currentPage, setCurrentPage] = useState(0);
   const vaultsPerPage = 5;
 
@@ -35,32 +42,6 @@ export default function ListVaults() {
       return await res.json();
     },
   });
-
-  const {
-    data: notionPages,
-    isLoading: isGetNotionPagesLoading,
-    error,
-    isError,
-  } = useQuery({
-    queryKey: [],
-    queryFn: async () => {
-      const res = await api.user.notion.$get();
-      if (res.ok) {
-        return await res.json();
-      } else {
-        const d = await res.json();
-        if (isErrorResponse(d)) {
-          return Promise.reject(d);
-        }
-      }
-    },
-  });
-
-  useEffect(() => {
-    if (isError) {
-      toast.error("Failed to read notion pages:" + error.message);
-    }
-  }, [error, isError]);
 
   const numVaults = vaults?.length ?? 0;
   const totalPages = Math.ceil(numVaults / vaultsPerPage);
@@ -128,6 +109,7 @@ export default function ListVaults() {
                     name={v.name}
                     id={v.id}
                     updatedAt={v.updatedAt}
+                    initialized={v.initialized}
                     notionPages={notionPages}
                     isNotionPagesLoading={isGetNotionPagesLoading}
                   />

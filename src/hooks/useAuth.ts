@@ -3,12 +3,18 @@ import { Jwt } from "shared/types/jwt";
 import { noAuthApi } from "~/lib/query";
 
 interface AuthState {
+  newSignup: boolean;
+  setNewSignup: (_: boolean) => void;
   accessToken: Jwt | undefined;
   setAccessToken: (token: string) => Jwt;
   refreshAccessToken: () => Promise<Jwt | undefined>;
 }
 
 export const useAuth = create<AuthState>((set) => ({
+  newSignup: false,
+  setNewSignup(newSignup) {
+    set({ newSignup });
+  },
   accessToken: undefined,
   setAccessToken: (token) => {
     const jwt = new Jwt(token);

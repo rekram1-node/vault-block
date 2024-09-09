@@ -97,6 +97,7 @@ export const suggestionItems = createSuggestionItems([
     },
   },
   {
+    // TODO: can't exit quotes easily? Something bugged with them...
     title: "Quote",
     description: "Capture a quote.",
     searchTerms: ["blockquote"],

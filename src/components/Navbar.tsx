@@ -10,6 +10,7 @@ const Navbar = () => {
       <div className="flex items-center">
         <Link href="/">
           <div className="flex cursor-pointer items-center">
+            {/* TODO: fix icons */}
             {theme === "light" ? (
               <img src="/light-icon.png" className="h-10 w-10" />
             ) : (

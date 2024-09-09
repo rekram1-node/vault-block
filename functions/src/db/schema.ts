@@ -1,16 +1,20 @@
 import { sql } from "drizzle-orm";
-import {
-  integer,
-  sqliteTable,
-  text,
-  blob,
-  index,
-} from "drizzle-orm/sqlite-core";
-import { init } from "@paralleldrive/cuid2";
+import { integer, sqliteTable, text, index } from "drizzle-orm/sqlite-core";
+import { createId } from "shared/lib/createId";
+import { type JSONContent } from "novel";
 
-const createId = init({
-  length: 32,
+export const usersTable = sqliteTable("users", {
+  id: text("id").unique().primaryKey().notNull(),
+  created_at: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
+  updated_at: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$onUpdate(() => new Date()),
 });
+
+export type InsertUser = typeof usersTable.$inferInsert;
+export type SelectUser = typeof usersTable.$inferSelect;
 
 export const vaultsTable = sqliteTable(
   "vaults",
@@ -30,19 +34,18 @@ export const vaultsTable = sqliteTable(
     // required fields
     userId: text("user_id").notNull(),
     name: text("name").notNull(),
-    notionPageId: text("notion_page_id").unique().notNull(),
+    notionPageId: text("notion_page_id").unique(),
 
     // added during initialization
-    encryptedVaultData: text("encrypted_vault_data"),
-    vaultSalt: blob("vault_salt").$type<Buffer>(),
-    vaultIv: blob("vault_iv").$type<Buffer>(),
+    vaultData: text("vault_data", { mode: "json" }).$type<JSONContent>(),
+    hdkfSalt: text("hdkf_salt"),
+    vaultIv: text("vault_iv"),
 
-    passwordHash: blob("password_hash").$type<Buffer>(),
-    passwordSalt: blob("password_salt").$type<Buffer>(),
+    passwordHash: text("password_hash"),
   },
   (table) => {
     return {
-      userIdIndex: index("encrypted_document_userId_idx").on(table.name),
+      userIdIndex: index("vault_userId_idx").on(table.userId),
     };
   },
 );

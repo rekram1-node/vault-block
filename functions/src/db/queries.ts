@@ -1,6 +1,14 @@
 import { type drizzle } from "drizzle-orm/libsql";
 import { and, count, desc, eq } from "drizzle-orm";
-import { type InsertVault, vaultsTable } from "./schema";
+import {
+  type InsertVault,
+  type InsertUser,
+  vaultsTable,
+  usersTable,
+} from "./schema";
+import { type JSONContent } from "novel";
+
+// TODO: refactor this to be more professional
 
 type DbType = ReturnType<typeof drizzle>;
 
@@ -9,6 +17,19 @@ export class Queries {
 
   constructor(db: DbType) {
     this.db = db;
+  }
+
+  async createUser(data: InsertUser) {
+    return getFirstElement(this.db.insert(usersTable).values(data).returning());
+  }
+
+  async readUser(id: string) {
+    return getFirstElement(
+      this.db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(usersTable.id, id)),
+    );
   }
 
   async createVault(data: InsertVault) {
@@ -22,11 +43,10 @@ export class Queries {
       this.db
         .update(vaultsTable)
         .set({
-          encryptedVaultData: data.encryptedVaultData,
+          hdkfSalt: data.hdkfSalt,
           vaultIv: data.vaultIv,
-          vaultSalt: data.vaultSalt,
+          vaultData: data.vaultData,
           passwordHash: data.passwordHash,
-          passwordSalt: data.passwordSalt,
         })
         .where(eq(vaultsTable.id, id))
         .returning(),
@@ -39,6 +59,8 @@ export class Queries {
         id: vaultsTable.id,
         name: vaultsTable.name,
         notionPageId: vaultsTable.notionPageId,
+        updatedAt: vaultsTable.updated_at,
+        hdkfSalt: vaultsTable.hdkfSalt,
       })
       .from(vaultsTable)
       .where(eq(vaultsTable.userId, userId))
@@ -57,17 +79,6 @@ export class Queries {
     return result?.value ?? 0;
   }
 
-  async readPasswordSalt(id: string) {
-    return getFirstElement(
-      this.db
-        .select({
-          passwordSalt: vaultsTable.passwordSalt,
-        })
-        .from(vaultsTable)
-        .where(eq(vaultsTable.id, id)),
-    );
-  }
-
   async readVault(id: string) {
     return getFirstElement(
       this.db
@@ -75,9 +86,20 @@ export class Queries {
           name: vaultsTable.name,
           passwordHash: vaultsTable.passwordHash,
 
-          encryptedVaultData: vaultsTable.encryptedVaultData,
+          vaultData: vaultsTable.vaultData,
           vaultIv: vaultsTable.vaultIv,
-          vaultSalt: vaultsTable.vaultSalt,
+          hdkfSalt: vaultsTable.hdkfSalt,
+        })
+        .from(vaultsTable)
+        .where(eq(vaultsTable.id, id)),
+    );
+  }
+
+  async readVaultData(id: string) {
+    return getFirstElement(
+      this.db
+        .select({
+          vaultData: vaultsTable.vaultData,
         })
         .from(vaultsTable)
         .where(eq(vaultsTable.id, id)),
@@ -90,23 +112,21 @@ export class Queries {
       .where(and(eq(vaultsTable.id, id), eq(vaultsTable.userId, userId)));
   }
 
-  async updateVault(id: string, data: string) {
+  async updateVault(id: string, data: JSONContent) {
     return this.db
       .update(vaultsTable)
       .set({
-        encryptedVaultData: data,
+        vaultData: data,
       })
       .where(eq(vaultsTable.id, id));
   }
 }
 
 interface InitializeData {
-  encryptedVaultData: string;
-  vaultSalt: Buffer;
-  vaultIv: Buffer;
-
-  passwordHash: Buffer;
-  passwordSalt: Buffer;
+  hdkfSalt: string;
+  vaultIv: string;
+  vaultData: JSONContent;
+  passwordHash: string;
 }
 
 async function getFirstElement<T>(array: Promise<T[]>): Promise<T | undefined> {

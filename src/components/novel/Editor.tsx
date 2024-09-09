@@ -5,9 +5,9 @@ import {
   EditorCommandItem,
   EditorCommandEmpty,
   EditorContent,
-  type JSONContent,
   EditorCommandList,
   EditorBubble,
+  type JSONContent,
 } from "novel";
 import { debounce } from "lodash";
 import { handleCommandNavigation } from "novel/extensions";
@@ -18,7 +18,7 @@ import { LinkSelector } from "./selectors/LinkSelector";
 import { ColorSelector } from "./selectors/ColorSelector";
 import { TextButtons } from "./selectors/TextButtons";
 import { slashCommand, suggestionItems } from "./SlashCommand";
-import { Separator } from "~/components/novel/ui/Separator";
+import { Separator } from "~/components/ui/separator";
 
 export const defaultValue: JSONContent = {
   type: "doc",
@@ -41,7 +41,6 @@ const Editor = ({ initialValue, onChange }: EditorProp) => {
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedOnChange = useCallback(
     debounce((value: JSONContent) => onChange(value), 2000),
     [onChange],

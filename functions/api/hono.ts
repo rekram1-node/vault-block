@@ -49,6 +49,8 @@ export const factory = createFactory<Env>({
         throw new Error("TURSO_AUTH_TOKEN env var is not defined");
       }
 
+      // TODO: we are connecting to db on every request,
+      // perhaps we should only connect for requests that need it
       const client = createClient({ url, authToken });
       c.set("db", new Queries(drizzle(client, { schema })));
 

@@ -1,8 +1,6 @@
 TODO:
 
 MVP Requirements:
-- Adjust creation to use form 
-- Adjust updates to use json patch
 - Adjust so updating requires auth
     * Password confirm should do a token exchange
 
@@ -28,7 +26,6 @@ https://bitwarden.com/help/bitwarden-security-white-paper/#hashing-key-derivatio
 
 * Make it pretty
 -> Better Error Handling
--> Actual Login page
 -> Actual User Modal
 -> Export your data??
 

@@ -66,6 +66,8 @@ const auth = app
     }
 
     let token: string;
+    let signup = false;
+
     if (!code && refreshToken) {
       const t = jwt.decode<JwtPayload, JwtHeader>(refreshToken);
       if (!t.header || !t.payload || t.payload.tokenType != "refresh_token") {
@@ -171,9 +173,20 @@ const auth = app
         expires: new Date(refreshTokenExpiration),
         sameSite: "Strict",
       });
+
+      const user = await c.var.db.readUser(owner.user.id);
+      if (!user) {
+        signup = true;
+        const result = await c.var.db.createUser({
+          id: owner.user.id,
+        });
+        if (!result) {
+          return c.json({ error: "failed to create user" }, 500);
+        }
+      }
     }
 
-    return c.json({ token, newSignup: false });
+    return c.json({ token, newSignup: signup });
   })
   .post("/logout", async (c) => {
     const cookie = getCookie(c, refresh_token_cookie);

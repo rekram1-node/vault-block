@@ -28,7 +28,7 @@ export class Queries {
       this.db
         .select({ id: usersTable.id })
         .from(usersTable)
-        .where(eq(vaultsTable.id, id)),
+        .where(eq(usersTable.id, id)),
     );
   }
 

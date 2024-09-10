@@ -1,3 +1,5 @@
+// TODO: ensure this code actually works
+// I was lazy with chatgpt and it may spin up more processes than intended
 import { type Operation } from "rfc6902";
 import { type JSONContent } from "novel";
 import { encryptData, decryptData } from "./encryption/encryption";

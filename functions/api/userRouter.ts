@@ -139,6 +139,15 @@ const notionRoutes = n
 
   .post("/", zValidator("json", z.array(PageSchema)), async (c) => {
     const notionPages = c.req.valid("json");
+
+    const numVaults = await c.var.db.readNumberOfVaults(c.var.userId);
+    if (numVaults >= c.env.MAX_PAGES) {
+      return c.json({ error: "max number of vaults reached" }, 403);
+    }
+    if (numVaults + notionPages.length >= c.env.MAX_PAGES) {
+      return c.json({ error: "request exceeds max number of vaults" }, 403);
+    }
+
     const createVaultPromises = notionPages.map(async (notionPage) => {
       const vault = await c.var.db.createVault({
         userId: c.var.userId,

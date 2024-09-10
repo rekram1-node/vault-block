@@ -22,6 +22,8 @@ import { CreateVault } from "./CreateVault";
 import { api, keys } from "~/lib/query";
 import { VaultSkeleton } from "./VaultSkeleton";
 import { type Page } from "shared/types/Page";
+import { SyncNotionButton } from "./SyncNotionButton";
+import { SyncNotionAlert } from "./SyncNotionAlert";
 
 type Props = {
   notionPages: Page[] | undefined;
@@ -32,6 +34,7 @@ export default function ListVaults({
   notionPages,
   isGetNotionPagesLoading,
 }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const vaultsPerPage = 5;
 
@@ -68,94 +71,108 @@ export default function ListVaults({
   const creationDisabled = numVaults >= import.meta.env.VITE_MAX_VAULTS;
 
   return (
-    <Card className="relative h-auto max-h-[80vh] w-2/3 overflow-y-auto p-4">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="pb-1">Your Vaults</CardTitle>
-            <CardDescription>
-              Manage your vaults and view their content.
-            </CardDescription>
-          </div>
-          <CreateVault disabled={creationDisabled} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        {(isGetVaultsLoading || numVaults > 0) && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="hidden w-[200px] md:table-cell">
-                  Updated at
-                </TableHead>
-                <TableHead className="w-[100px] text-right">
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isGetVaultsLoading && (
-                <>
-                  <VaultSkeleton />
-                  <VaultSkeleton />
-                  <VaultSkeleton />
-                </>
-              )}
-              {!isGetVaultsLoading &&
-                paginatedVaults?.map((v) => (
-                  <Vault
-                    key={v.id}
-                    name={v.name}
-                    id={v.id}
-                    updatedAt={v.updatedAt}
-                    initialized={v.initialized}
-                    notionPages={notionPages}
-                    isNotionPagesLoading={isGetNotionPagesLoading}
-                  />
-                ))}
-            </TableBody>
-          </Table>
-        )}
-        {!isGetVaultsLoading && numVaults == 0 && (
-          <div className="inset-0 mt-10 flex items-center justify-center pt-10">
-            <div className="text-center">
-              <p className="text-lg font-semibold">Create your first Vault!</p>
-              <p className="text-md text-muted-foreground">
-                You don't have any vaults yet. Start by creating a new one.
-              </p>
+    <>
+      <SyncNotionAlert
+        numVaults={numVaults}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        notionPages={notionPages}
+        isGetNotionPagesLoading={isGetNotionPagesLoading}
+      />
+      <Card className="relative h-auto max-h-[80vh] w-2/3 overflow-y-auto p-4">
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="pb-1">Your Vaults</CardTitle>
+              <CardDescription>
+                Manage your vaults and view their content.
+              </CardDescription>
             </div>
+            <CreateVault disabled={creationDisabled} />
           </div>
-        )}
-      </CardContent>
-      <CardFooter className="absolute bottom-0 right-0">
-        <div className="pr-4 text-xs text-muted-foreground">
-          Showing{" "}
-          <strong>
-            {numVaults === 0 ? 0 : currentPage * vaultsPerPage + 1}-
-            {Math.min((currentPage + 1) * vaultsPerPage, numVaults)}
-          </strong>{" "}
-          of <strong>{numVaults}</strong> vaults
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handlePrevPage}
-            disabled={currentPage === 0}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages - 1}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+        </CardHeader>
+        <CardContent>
+          {(isGetVaultsLoading || numVaults > 0) && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden w-[200px] md:table-cell">
+                    Updated at
+                  </TableHead>
+                  <TableHead className="w-[100px] text-right">
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isGetVaultsLoading && (
+                  <>
+                    <VaultSkeleton />
+                    <VaultSkeleton />
+                    <VaultSkeleton />
+                  </>
+                )}
+                {!isGetVaultsLoading &&
+                  paginatedVaults?.map((v) => (
+                    <Vault
+                      key={v.id}
+                      name={v.name}
+                      id={v.id}
+                      updatedAt={v.updatedAt}
+                      initialized={v.initialized}
+                      notionPages={notionPages}
+                      isNotionPagesLoading={isGetNotionPagesLoading}
+                    />
+                  ))}
+              </TableBody>
+            </Table>
+          )}
+          {!isGetVaultsLoading && numVaults == 0 && (
+            <div className="inset-0 mt-10 flex items-center justify-center pt-10">
+              <div className="text-center">
+                <p className="text-lg font-semibold">
+                  Create your first Vault!
+                </p>
+                <p className="text-md text-muted-foreground">
+                  You don't have any vaults yet. Start by creating a new one.
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="absolute bottom-0 left-0">
+          <SyncNotionButton disabled={false} onClick={() => setIsOpen(true)} />
+        </CardFooter>
+        <CardFooter className="absolute bottom-0 right-0">
+          <div className="pr-4 text-xs text-muted-foreground">
+            Showing{" "}
+            <strong>
+              {numVaults === 0 ? 0 : currentPage * vaultsPerPage + 1}-
+              {Math.min((currentPage + 1) * vaultsPerPage, numVaults)}
+            </strong>{" "}
+            of <strong>{numVaults}</strong> vaults
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handlePrevPage}
+              disabled={currentPage === 0}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages - 1}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+    </>
   );
 }

@@ -14,13 +14,10 @@ preview_id = "281ccc40613144549693379fc9f7dbbc"
 kv_namespaces = [
   { binding = "VAULT_BLOCK", id = "c717b0fe944c41c18833c2ad9f7b48b1" }
 ]
-[env.production.vars]
-MAX_VAULTS=5
 
 
 [env.preview]
 kv_namespaces = [
   { binding = "VAULT_BLOCK", id = "281ccc40613144549693379fc9f7dbbc", preview_id = "281ccc40613144549693379fc9f7dbbc" }
 ]
-[env.preview.vars]
-MAX_VAULTS=10
+

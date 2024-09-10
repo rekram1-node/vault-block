@@ -59,6 +59,7 @@ const auth = app
     const refreshToken = getCookie(c, refresh_token_cookie);
     const code = c.req.query("code");
     if (!code && !refreshToken) {
+      console.error("missing code and refresh token");
       return unauthorized(c);
     }
     if (code === "null") {
@@ -71,6 +72,7 @@ const auth = app
     if (!code && refreshToken) {
       const t = jwt.decode<JwtPayload, JwtHeader>(refreshToken);
       if (!t.header || !t.payload || t.payload.tokenType != "refresh_token") {
+        console.error("missing relavent token attributes:", t);
         return unauthorized(c);
       }
 
@@ -78,13 +80,16 @@ const auth = app
         refreshToken,
         c.env.REFRESH_TOKEN_SECRET,
       );
-      if (!isValid) return unauthorized(c);
+      if (!isValid) {
+        console.error("invalid refresh JWT:", refreshToken);
+        return unauthorized(c);
+      }
 
       const realToken = await c.env.VAULT_BLOCK.get(
         getKVKey(t.payload.sub, refreshToken),
       );
       if (!realToken) {
-        console.log("token doesn't exist...");
+        console.error("token doesn't exist...");
         return unauthorized(c);
       }
 
@@ -121,6 +126,7 @@ const auth = app
         },
       });
       if (!result.isOk) {
+        console.error("unable to fetch token:", result.error);
         return c.json({ error: "failed to fetch token" }, 500);
       }
 
@@ -181,6 +187,7 @@ const auth = app
           id: owner.user.id,
         });
         if (!result) {
+          console.error("unable to create user");
           return c.json({ error: "failed to create user" }, 500);
         }
       }

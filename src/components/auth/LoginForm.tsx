@@ -15,7 +15,7 @@ export function LoginForm({ onClick }: { onClick: () => void }) {
       <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account.
+          To continue, login or signup with Notion.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4"></CardContent>

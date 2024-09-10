@@ -9,6 +9,7 @@ import {
 import { type JSONContent } from "novel";
 
 // TODO: refactor this to be more professional
+// TODO: all returns should use result types, currently there is 0 error handling
 
 type DbType = ReturnType<typeof drizzle>;
 

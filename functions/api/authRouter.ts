@@ -42,6 +42,15 @@ export const authMiddleware: MiddlewareHandler = async (c: Context, next) => {
 };
 
 const auth = app
+  .get("/env", async (c) => {
+    return c.json({
+      maxPages: c.env.MAX_PAGES,
+      redirect: c.env.REDIRECT_URL,
+      cfPages: c.env.CF_PAGES_URL,
+      vaultBlockUrl: c.env.VAULT_BLOCK_URL,
+    });
+  })
+
   .get("/url", async (c) => {
     const url = new URL(c.req.url);
     const redirect = c.env.REDIRECT_URL ?? `${url.origin}/auth/callback`;

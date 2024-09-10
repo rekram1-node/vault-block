@@ -43,6 +43,7 @@ export function VaultPage() {
 
   useEffect(() => {
     if (isLocked || !encryptedContent || !iv || !stretchedMasterKey) {
+      setDecrypted(undefined);
       return;
     }
     const decrypt = async () => {
@@ -55,7 +56,7 @@ export function VaultPage() {
       setDecrypted(decryptedBlocks);
     };
     void decrypt();
-  }, [isLocked, encryptedContent]);
+  }, [isLocked, encryptedContent, iv, stretchedMasterKey]);
 
   const autoSave = async (editorJson: JSONContent) => {
     if (!id) return;

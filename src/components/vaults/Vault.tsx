@@ -71,7 +71,6 @@ export function Vault({
 
   const handleInitialize = () => {
     setOpen(true);
-    console.log("Initializing vault...");
   };
 
   return (

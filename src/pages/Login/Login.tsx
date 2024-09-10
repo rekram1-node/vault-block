@@ -3,7 +3,6 @@ import { LoginForm } from "~/components/auth/LoginForm";
 import { toast } from "sonner";
 
 export function Login() {
-  console.log(import.meta.env);
   const handleLogin = async () => {
     const result = await noAuthApi.auth.url.$get();
 

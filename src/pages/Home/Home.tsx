@@ -44,8 +44,6 @@ export function Home() {
     }
   }, [error, isError]);
 
-  console.log("Environment Variables:", import.meta.env);
-
   return (
     <>
       <SignupModal

@@ -4,6 +4,7 @@ import { noAuthApi } from "~/lib/query";
 import { useAuth } from "~/hooks/useAuth";
 import { useMutation } from "@tanstack/react-query";
 import { type ErrorResponse } from "shared/types/ErrorResponse";
+import { LoadingSpinner } from "../Loading";
 
 const useFetchTokenMutation = (
   hasFiredRef?: React.MutableRefObject<boolean>,
@@ -58,11 +59,9 @@ export function OauthProvider({ children }: { children: React.ReactNode }) {
     <>
       {accessToken != null && children}
       {accessToken == null && (
-        <div>
+        <div className="flex min-h-screen items-center justify-center">
           {/* TODO: better loading screen */}
-          <button onClick={() => console.log(accessToken, mutation.isPending)}>
-            Loading...
-          </button>
+          <LoadingSpinner size={100} />
         </div>
       )}
     </>

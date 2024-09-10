@@ -16,18 +16,16 @@ export function Router() {
         <ProtectedRoute path="/">
           <Home />
         </ProtectedRoute>
-        {/* <ProtectedRoute path="/vault">
-          <Vault />
-        </ProtectedRoute>
-        <ProtectedRoute path="/page">
-          <Page />
-        </ProtectedRoute> */}
         <Route path="/vaults/:id">
           <VaultPage />
         </Route>
 
         {/* TODO: Make a better 404 */}
-        <Route>404: No such page!</Route>
+        <Route>
+          <div className="flex min-h-screen items-center justify-center">
+            <h1 className="text-2xl font-bold">404: No such page!</h1>
+          </div>
+        </Route>
       </Switch>
     </>
   );

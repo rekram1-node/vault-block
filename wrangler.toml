@@ -9,16 +9,16 @@ id = "c717b0fe944c41c18833c2ad9f7b48b1"
 preview_id = "281ccc40613144549693379fc9f7dbbc"
 
 [env.production]
-
 kv_namespaces = [
   { binding = "VAULT_BLOCK", id = "c717b0fe944c41c18833c2ad9f7b48b1" }
 ]
+[env.production.vars]
+VITE_MAX_VAULTS=5
+
 
 [env.preview]
-
 kv_namespaces = [
   { binding = "VAULT_BLOCK", id = "281ccc40613144549693379fc9f7dbbc", preview_id = "281ccc40613144549693379fc9f7dbbc" }
 ]
-[vars]
-TURSO_DATABASE_URL = "$TURSO_DATABASE_URL"
-TURSO_AUTH_TOKEN = "$TURSO_AUTH_TOKEN"
+[env.preview.vars]
+VITE_MAX_VAULTS=5

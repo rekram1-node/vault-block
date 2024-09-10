@@ -3,7 +3,7 @@ compatibility_date = "2024-07-01"
 pages_build_output_dir = "./dist"
 
 [vars]
-VITE_MAX_VAULTS=5
+MAX_VAULTS=5
 
 [[kv_namespaces]]
 binding = "VAULT_BLOCK"
@@ -15,7 +15,7 @@ kv_namespaces = [
   { binding = "VAULT_BLOCK", id = "c717b0fe944c41c18833c2ad9f7b48b1" }
 ]
 [env.production.vars]
-VITE_MAX_VAULTS=5
+MAX_VAULTS=5
 
 
 [env.preview]
@@ -23,4 +23,4 @@ kv_namespaces = [
   { binding = "VAULT_BLOCK", id = "281ccc40613144549693379fc9f7dbbc", preview_id = "281ccc40613144549693379fc9f7dbbc" }
 ]
 [env.preview.vars]
-VITE_MAX_VAULTS=5
+MAX_VAULTS=10

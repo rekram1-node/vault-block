@@ -20,7 +20,11 @@ export class Notion {
       "Content-Type": "application/json",
     };
     const url = new URL(c.req.url);
-    this.embeddedBaseUrl = c.env.VAULT_BLOCK_URL ?? url.origin;
+    // Ensure no trailing slash
+    this.embeddedBaseUrl = (c.env.VAULT_BLOCK_URL ?? url.origin).replace(
+      /\/$/,
+      "",
+    );
   }
 
   async ReadPages() {
@@ -62,7 +66,7 @@ export class Notion {
   }
 
   async AppendEmbeddedBlock(notionPageId: string, vaultId: string) {
-    const embeddedUrl = this.embeddedBaseUrl + `/protected/${vaultId}`;
+    const embeddedUrl = this.embeddedBaseUrl + `/vaults/${vaultId}`;
     const body = `{"children":[{"object":"block","type":"embed","embed":{"url":"${embeddedUrl}"}}]}`;
     const url = this.appendToPageUrl(notionPageId);
     const response = await api<never>(url, {

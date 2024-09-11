@@ -9,7 +9,7 @@ import {
   EditorBubble,
   type JSONContent,
 } from "novel";
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 import { handleCommandNavigation } from "novel/extensions";
 
 import { defaultExtensions } from "./Extensions";

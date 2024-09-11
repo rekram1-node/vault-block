@@ -169,11 +169,11 @@ const auth = app
         },
       );
 
+      const domain = new URL(c.req.url).host;
       setCookie(c, refresh_token_cookie, newRefreshToken, {
         path: "/",
         secure: true,
-        // TODO: add domain...
-        // domain: "example.com",
+        domain,
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
         expires: new Date(refreshTokenExpiration),

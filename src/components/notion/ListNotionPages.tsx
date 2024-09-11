@@ -98,7 +98,6 @@ export function ListNotionPages({ pages, isLoading, vaultId }: Props) {
         {isLoading
           ? Array.from({ length: 3 }).map((_, index) => (
               <DropdownMenuItem className="w-full py-1" key={index}>
-                {/* TODO: fix this color, may need manual override of it */}
                 <Skeleton className="h-4 w-full rounded" />
               </DropdownMenuItem>
             ))

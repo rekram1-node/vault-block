@@ -3,6 +3,8 @@ TODO:
 MVP Requirements:
 - Adjust so updating requires auth
     * Password confirm should do a token exchange
+- Ratelimiting
+- Max length for vaults
 
 Maybe Cool:
 - Rust implementation of json patch if performance issues occur

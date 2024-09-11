@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
  
-/* TODO: light theme needs major work... */
 @layer base {
   :root {
     --background: 240 27% 94%;

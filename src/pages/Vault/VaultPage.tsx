@@ -15,6 +15,8 @@ import { useMutation } from "~/hooks/useMutation";
 import { vaultApi } from "~/lib/query";
 import { isErrorResponse } from "shared/types/ErrorResponse";
 
+// TODO: add auto lock after inactivity (30 min?)
+
 export function VaultPage() {
   const { encryptedContent, stretchedMasterKey, iv, name, clear } =
     usePublicVault();

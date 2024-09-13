@@ -58,29 +58,4 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  h1, h2, h3 {
-    font-family: var(--__sl-font-headings, var(--sl-font-mono, monospace));
-    letter-spacing: -1px;
-    font-weight: 500;
-  }
-  h4, h5, h6 {
-    font-family: var(--__sl-font-headings, var(--sl-font-mono, monospace));
-    letter-spacing: -0.5px;
-    font-weight: 500;
-  }
-  h1 {
-    font-size: var(--sl-text-h1);
-  }
-  h2 {
-    font-size: var(--sl-text-h2);
-  }
-  h3 {
-    font-size: var(--sl-text-h3);
-  }
-  h4 {
-    font-size: var(--sl-text-h4);
-  }
-  h5 {
-    font-size: var(--sl-text-h5);
-  }
 }

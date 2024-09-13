@@ -111,6 +111,7 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
   text-decoration-thickness: 2px;
 }
 
+
 /* Overwrite tippy-box original max-width */
 
 .tippy-box {

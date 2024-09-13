@@ -21,37 +21,33 @@ export class Queries {
   }
 
   async createUser(data: InsertUser) {
-    return getFirstElement(this.db.insert(usersTable).values(data).returning());
+    return this.db.insert(usersTable).values(data).returning().get();
   }
 
   async readUser(id: string) {
-    return getFirstElement(
-      this.db
-        .select({ id: usersTable.id })
-        .from(usersTable)
-        .where(eq(usersTable.id, id)),
-    );
+    return this.db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.id, id))
+      .get();
   }
 
   async createVault(data: InsertVault) {
-    return getFirstElement(
-      this.db.insert(vaultsTable).values(data).returning(),
-    );
+    return this.db.insert(vaultsTable).values(data).returning().get();
   }
 
   async activateVault(id: string, data: InitializeData) {
-    return getFirstElement(
-      this.db
-        .update(vaultsTable)
-        .set({
-          hdkfSalt: data.hdkfSalt,
-          vaultIv: data.vaultIv,
-          vaultData: data.vaultData,
-          passwordHash: data.passwordHash,
-        })
-        .where(eq(vaultsTable.id, id))
-        .returning(),
-    );
+    return this.db
+      .update(vaultsTable)
+      .set({
+        hdkfSalt: data.hdkfSalt,
+        vaultIv: data.vaultIv,
+        vaultData: data.vaultData,
+        passwordHash: data.passwordHash,
+      })
+      .where(eq(vaultsTable.id, id))
+      .returning()
+      .get();
   }
 
   async readAllVaults(userId: string) {
@@ -65,46 +61,45 @@ export class Queries {
       })
       .from(vaultsTable)
       .where(eq(vaultsTable.userId, userId))
-      .orderBy(desc(vaultsTable.updated_at));
+      .orderBy(desc(vaultsTable.updated_at))
+      .all();
   }
 
   async readNumberOfVaults(userId: string) {
-    const result = await getFirstElement(
-      this.db
-        .select({
-          value: count(),
-        })
-        .from(vaultsTable)
-        .where(eq(vaultsTable.userId, userId)),
-    );
+    const result = await this.db
+      .select({
+        value: count(),
+      })
+      .from(vaultsTable)
+      .where(eq(vaultsTable.userId, userId))
+      .get();
+
     return result?.value ?? 0;
   }
 
   async readVault(id: string) {
-    return getFirstElement(
-      this.db
-        .select({
-          name: vaultsTable.name,
-          passwordHash: vaultsTable.passwordHash,
+    return this.db
+      .select({
+        name: vaultsTable.name,
+        passwordHash: vaultsTable.passwordHash,
 
-          vaultData: vaultsTable.vaultData,
-          vaultIv: vaultsTable.vaultIv,
-          hdkfSalt: vaultsTable.hdkfSalt,
-        })
-        .from(vaultsTable)
-        .where(eq(vaultsTable.id, id)),
-    );
+        vaultData: vaultsTable.vaultData,
+        vaultIv: vaultsTable.vaultIv,
+        hdkfSalt: vaultsTable.hdkfSalt,
+      })
+      .from(vaultsTable)
+      .where(eq(vaultsTable.id, id))
+      .get();
   }
 
   async readVaultData(id: string) {
-    return getFirstElement(
-      this.db
-        .select({
-          vaultData: vaultsTable.vaultData,
-        })
-        .from(vaultsTable)
-        .where(eq(vaultsTable.id, id)),
-    );
+    return this.db
+      .select({
+        vaultData: vaultsTable.vaultData,
+      })
+      .from(vaultsTable)
+      .where(eq(vaultsTable.id, id))
+      .get();
   }
 
   async deleteVault(userId: string, id: string) {
@@ -128,8 +123,4 @@ interface InitializeData {
   vaultIv: string;
   vaultData: JSONContent;
   passwordHash: string;
-}
-
-async function getFirstElement<T>(array: Promise<T[]>): Promise<T | undefined> {
-  return array.then((result) => result?.[0]);
 }

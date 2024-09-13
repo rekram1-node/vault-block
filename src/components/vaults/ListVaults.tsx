@@ -144,34 +144,36 @@ export default function ListVaults({
         <CardFooter className="absolute bottom-0 left-0">
           <SyncNotionButton disabled={false} onClick={() => setIsOpen(true)} />
         </CardFooter>
-        <CardFooter className="absolute bottom-0 right-0">
-          <div className="pr-4 text-xs text-muted-foreground">
-            Showing{" "}
-            <strong>
-              {numVaults === 0 ? 0 : currentPage * vaultsPerPage + 1}-
-              {Math.min((currentPage + 1) * vaultsPerPage, numVaults)}
-            </strong>{" "}
-            of <strong>{numVaults}</strong> vaults
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handlePrevPage}
-              disabled={currentPage === 0}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages - 1}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardFooter>
+        {totalPages > 1 && (
+          <CardFooter className="absolute bottom-0 right-0">
+            <div className="pr-4 text-xs text-muted-foreground">
+              Showing{" "}
+              <strong>
+                {numVaults === 0 ? 0 : currentPage * vaultsPerPage + 1}-
+                {Math.min((currentPage + 1) * vaultsPerPage, numVaults)}
+              </strong>{" "}
+              of <strong>{numVaults}</strong> vaults
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handlePrevPage}
+                disabled={currentPage === 0}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages - 1}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardFooter>
+        )}
       </Card>
     </>
   );

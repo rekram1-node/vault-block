@@ -47,7 +47,7 @@ export function SyncNotionAlert({
         <AlertDialogContent className="max-w-screen-md">
           {title && description ? (
             <AlertDialogHeader className="mb-1">
-              <AlertDialogTitle>{title}</AlertDialogTitle>
+              <AlertDialogTitle className="text-4xl">{title}</AlertDialogTitle>
               <AlertDialogDescription>{description}</AlertDialogDescription>
             </AlertDialogHeader>
           ) : (

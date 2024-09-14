@@ -1,5 +1,5 @@
-import "~/styles/globals.css";
 import "~/styles/prosemirror.css";
+import "~/styles/globals.css";
 
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";

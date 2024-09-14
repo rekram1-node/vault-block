@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
  
-/* TODO: light theme needs major work... */
 @layer base {
   :root {
     --background: 240 27% 94%;
@@ -25,6 +24,16 @@
     --destructive-foreground: 0 47.55% 91.2%;
     --ring: 198 19.69% 45.63%;
     --radius: 0.5rem;
+
+    --novel-highlight-default: #ffffff;
+    --novel-highlight-purple: #f6f3f8;
+    --novel-highlight-red: #fdebeb;
+    --novel-highlight-yellow: #fbf4a2;
+    --novel-highlight-blue: #c1ecf9;
+    --novel-highlight-green: #acf79f;
+    --novel-highlight-orange: #faebdd;
+    --novel-highlight-pink: #faf1f5;
+    --novel-highlight-gray: #f1f1ef;
   }
 
   .dark {
@@ -48,6 +57,16 @@
     --destructive-foreground: 0 100% 95%;
     --ring: 198 23.58% 25.52%;
     --radius: 0.5rem;
+
+    --novel-highlight-default: #000000;
+    --novel-highlight-purple: #3f2c4b;
+    --novel-highlight-red: #5c1a1a;
+    --novel-highlight-yellow: #5c4b1a;
+    --novel-highlight-blue: #1a3d5c;
+    --novel-highlight-green: #1a5c20;
+    --novel-highlight-orange: #5c3a1a;
+    --novel-highlight-pink: #5c1a3a;
+    --novel-highlight-gray: #3a3a3a;
   }
 }
  
@@ -58,30 +77,5 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-  }
-  h1, h2, h3 {
-    font-family: var(--__sl-font-headings, var(--sl-font-mono, monospace));
-    letter-spacing: -1px;
-    font-weight: 500;
-  }
-  h4, h5, h6 {
-    font-family: var(--__sl-font-headings, var(--sl-font-mono, monospace));
-    letter-spacing: -0.5px;
-    font-weight: 500;
-  }
-  h1 {
-    font-size: var(--sl-text-h1);
-  }
-  h2 {
-    font-size: var(--sl-text-h2);
-  }
-  h3 {
-    font-size: var(--sl-text-h3);
-  }
-  h4 {
-    font-size: var(--sl-text-h4);
-  }
-  h5 {
-    font-size: var(--sl-text-h5);
   }
 }

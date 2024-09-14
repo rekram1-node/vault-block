@@ -15,6 +15,8 @@ import { useMutation } from "~/hooks/useMutation";
 import { vaultApi } from "~/lib/query";
 import { isErrorResponse } from "shared/types/ErrorResponse";
 
+// TODO: add auto lock after inactivity (30 min?)
+
 export function VaultPage() {
   const { encryptedContent, stretchedMasterKey, iv, name, clear } =
     usePublicVault();
@@ -73,10 +75,14 @@ export function VaultPage() {
 
     mutate({ param: { vaultId: id }, json: patches });
 
-    setDecrypted(editorJson);
+    if (!isLocked) {
+      // Want to make sure there isn't any data corruption
+      // if say a user signs in, edits, then signs out and back in again
+      // This could otherwise lead to a late decryption set due to debounce
+      setDecrypted(editorJson);
+    }
   };
 
-  // TODO: delete prose and just use globals.css
   return (
     <>
       {isLocked && (

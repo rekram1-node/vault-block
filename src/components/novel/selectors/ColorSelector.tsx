@@ -16,7 +16,7 @@ export interface BubbleColorMenuItem {
 const TEXT_COLORS: BubbleColorMenuItem[] = [
   {
     name: "Default",
-    color: "var(--novel-black)",
+    color: "var(--foreground)",
   },
   {
     name: "Purple",
@@ -55,7 +55,7 @@ const TEXT_COLORS: BubbleColorMenuItem[] = [
 const HIGHLIGHT_COLORS: BubbleColorMenuItem[] = [
   {
     name: "Default",
-    color: "var(--novel-highlight-default)",
+    color: "var(--foreground)",
   },
   {
     name: "Purple",
@@ -108,6 +108,8 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
     editor.isActive("highlight", { color }),
   );
 
+  // TODO: Make all colors defined in CSS
+  // Make this dropdown not so ugly!
   return (
     <Popover modal={true} open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
@@ -127,7 +129,7 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
 
       <PopoverContent
         sideOffset={5}
-        className="my-1 flex max-h-80 w-48 flex-col overflow-hidden overflow-y-auto rounded border p-1 shadow-xl "
+        className="my-1 flex max-h-80 w-48 flex-col overflow-hidden overflow-y-auto rounded border bg-card p-1 shadow-xl"
         align="start"
       >
         <div className="flex flex-col">

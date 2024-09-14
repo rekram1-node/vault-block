@@ -79,7 +79,7 @@ export function Vault({
       <TableCell className="hidden md:table-cell">
         {formatToLocalDateTime(updatedAt)}
       </TableCell>
-      <TableCell className="w-[150px] pr-4 text-right">
+      <TableCell className="w-[100px] pr-4 text-right">
         {initialized ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

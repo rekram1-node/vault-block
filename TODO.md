@@ -18,9 +18,10 @@ token should only be valid for say an hour
 - Setup subdomain for staging environment
 - Perf boosts with Rust based protections thing
 
+## Bug Fixes
+- Possible corruption edge case?
+
 ## Features
-- Underline fixes
-- Color Dropdown fixes
 - Add table block
 - Add image uploads
 - Collaboration

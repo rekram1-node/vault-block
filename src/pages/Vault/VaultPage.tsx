@@ -12,7 +12,7 @@ import { ThemeToggle } from "~/components/novel/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { decryptTextBlocks, encryptOperationArray } from "~/lib/workerPool";
 import { useMutation } from "~/hooks/useMutation";
-import { vaultApi } from "~/lib/query";
+import { api } from "~/lib/api/query";
 import { isErrorResponse } from "shared/types/ErrorResponse";
 
 // TODO: add auto lock after inactivity (30 min?)
@@ -24,7 +24,7 @@ export function VaultPage() {
   const [isLocked, setIsLocked] = useState(true);
   const [decrypted, setDecrypted] = useState<JSONContent | undefined>();
 
-  const $update = vaultApi.vaults[":vaultId"].content.$post;
+  const $update = api.vaults[":vaultId"].content.$post;
   const { mutate } = useMutation($update)({
     mutationFn: async (args) => {
       const res = await $update(args);

@@ -67,7 +67,6 @@ export function SyncNotionAlert({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                console.log("function is being called explicit");
                 handleSubmit();
                 setIsOpen(false);
               }}

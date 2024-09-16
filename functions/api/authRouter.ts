@@ -1,10 +1,13 @@
 import { type MiddlewareHandler } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
+import { HTTPException } from "hono/http-exception";
 import jwt from "@tsndr/cloudflare-worker-jwt";
+
 import { type JwtPayload, type JwtHeader } from "shared/types/jwt";
-import { api } from "shared/lib/api";
+import { req } from "shared/lib/req";
 import { type TokenResponse } from "functions/src/types/tokenResponse";
 import { factory, type Context } from "functions/api/hono";
+import { Unauthorized } from "./errors";
 
 const auth_url = "https://api.notion.com/v1/oauth/authorize";
 const token_url = "https://api.notion.com/v1/oauth/token";
@@ -14,24 +17,21 @@ const aud = ["https://vault-block.com"];
 
 const app = factory.createApp();
 
-export const unauthorized = (c: Context) =>
-  c.json({ error: "Unauthorized" }, 401);
-
 export const authMiddleware: MiddlewareHandler = async (c: Context, next) => {
   const headerToken = c.req.header().authorization;
   if (!headerToken?.startsWith("Bearer ")) {
-    return unauthorized(c);
+    throw new HTTPException(401, { message: "Unauthorized" });
   }
   const accessToken = headerToken.slice(7);
 
   const isValid = await jwt.verify(accessToken, c.env.ACCESS_TOKEN_SECRET);
   if (!isValid) {
-    return unauthorized(c);
+    throw Unauthorized;
   }
 
   const t = jwt.decode<JwtPayload, JwtHeader>(accessToken);
   if (!t.header || !t.payload) {
-    return unauthorized(c);
+    throw Unauthorized;
   }
 
   c.set("jwtHeader", t.header);
@@ -60,7 +60,7 @@ const auth = app
     const code = c.req.query("code");
     if (!code && !refreshToken) {
       console.error("missing code and refresh token");
-      return unauthorized(c);
+      throw Unauthorized;
     }
     if (code === "null") {
       return c.json({ error: "login cancelled" }, 400);
@@ -73,7 +73,7 @@ const auth = app
       const t = jwt.decode<JwtPayload, JwtHeader>(refreshToken);
       if (!t.header || !t.payload || t.payload.tokenType != "refresh_token") {
         console.error("missing relavent token attributes:", t);
-        return unauthorized(c);
+        throw Unauthorized;
       }
 
       const isValid = await jwt.verify(
@@ -82,7 +82,7 @@ const auth = app
       );
       if (!isValid) {
         console.error("invalid refresh JWT:", refreshToken);
-        return unauthorized(c);
+        throw Unauthorized;
       }
 
       const realToken = await c.env.VAULT_BLOCK.get(
@@ -90,7 +90,7 @@ const auth = app
       );
       if (!realToken) {
         console.error("token doesn't exist...");
-        return unauthorized(c);
+        throw Unauthorized;
       }
 
       const now = Math.floor(Date.now() / 1000); // Current UTC time in seconds
@@ -113,7 +113,7 @@ const auth = app
       const url = new URL(c.req.url);
       const redirect = c.env.REDIRECT_URL ?? `${url.origin}/auth/callback`;
 
-      const result = await api<TokenResponse>(token_url, {
+      const result = await req<TokenResponse>(token_url, {
         method: "POST",
         body: JSON.stringify({
           code,
@@ -125,7 +125,7 @@ const auth = app
           Authorization: "Basic " + encodedCreds,
         },
       });
-      if (!result.isOk) {
+      if (!result.ok) {
         console.error("unable to fetch token:", result.error);
         return c.json({ error: "failed to fetch token" }, 500);
       }

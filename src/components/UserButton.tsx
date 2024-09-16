@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import React from "react";
-import { noAuthApi } from "~/lib/query";
+import { oauthApi } from "~/lib/api/query";
 
 // export function UserButton() {
 //   const [isOpen, setIsOpen] = useState(false);
@@ -92,7 +92,7 @@ export function UserButton() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={async () => {
-            await noAuthApi.auth.logout.$post();
+            await oauthApi.auth.logout.$post();
             window.location.href = "/auth/sign-in";
           }}
         >

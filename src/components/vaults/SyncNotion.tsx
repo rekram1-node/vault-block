@@ -9,7 +9,7 @@ import {
 } from "~/components/ui/card";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useMutation } from "~/hooks/useMutation";
-import { api, keys, queryClient } from "~/lib/query";
+import { oauthApi, keys, queryClient } from "~/lib/api/query";
 import { isErrorResponse } from "shared/types/ErrorResponse";
 import { toast } from "sonner";
 import { Skeleton } from "../ui/skeleton";
@@ -36,7 +36,7 @@ export function SyncNotion({
   const allowed = MAX_VAULTS - (numVaults ?? 0);
   const max = MAX_VAULTS + (numVaults ?? 0);
   const [selectedPages, setSelectedPages] = useState<Page[]>([]);
-  const $sync = api.user.notion.$post;
+  const $sync = oauthApi.user.notion.$post;
 
   const { mutate } = useMutation($sync)({
     mutationKey: keys.vaults,
@@ -152,7 +152,16 @@ export function SyncNotion({
           </div>
         </ScrollArea>
         <p className="mt-2 text-sm text-gray-500">
-          Selected: {selectedPages.length} / {allowed}
+          {hasPages &&
+            (notionPages.length > allowed ? (
+              <>
+                Selected: {selectedPages.length} / {allowed}
+              </>
+            ) : (
+              <>
+                Selected: {selectedPages.length} / {notionPages.length}
+              </>
+            ))}
         </p>
       </CardContent>
     </Card>

@@ -1,6 +1,7 @@
 name = "vault-block"
 compatibility_date = "2024-07-01"
 pages_build_output_dir = "./dist"
+# compatibility_flags = [ "nodejs_compat_v2" ]
 
 [vars]
 VITE_MAX_VAULTS=5

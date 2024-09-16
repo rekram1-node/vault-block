@@ -12,7 +12,9 @@ import { applyPatch, type Operation } from "rfc6902";
 import { factory } from "functions/api/hono";
 import { VaultSchema, VaultIdSchema } from "functions/src/types/vault";
 import { OperationsSchema } from "functions/src/types/operation";
-import { unauthorized } from "./authRouter";
+import { Unauthorized } from "./errors";
+import { HTTPException } from "hono/http-exception";
+import { VaultNotFoundError } from "functions/src/db/repository";
 
 const app = factory.createApp();
 
@@ -32,22 +34,28 @@ const vaults = app
     ),
     async (c) => {
       const vaultId = c.req.param("vaultId");
-      const vault = await c.var.db.readVault(vaultId);
-      if (!vault) {
-        // Even though we would normally return a 404
-        // The 401 helps obfuscate if this vault even exists
-        // Essentially forces an attacker to know the vaultId and password
-        return unauthorized(c);
+      const readResult = await c.var.db.readVault(vaultId);
+      if (!readResult.ok) {
+        if (readResult.error instanceof VaultNotFoundError) {
+          // Even though we would normally return a 404
+          // The 401 helps obfuscate if this vault even exists
+          // Essentially forces an attacker to know the vaultId and password
+          throw Unauthorized;
+        }
+        throw new HTTPException(500, { message: readResult.error.message });
       }
+      const vault = readResult.data;
       const body = c.req.valid("json");
 
       if (vault.passwordHash !== body.passwordHash) {
-        return unauthorized(c);
+        throw Unauthorized;
       }
 
       if (!vault.vaultData || !vault.vaultIv || !vault.hdkfSalt) {
         console.error("unexpected application state:", vault);
-        return c.json({ error: "unexpected application state" }, 500);
+        throw new HTTPException(500, {
+          message: "unexpected application state",
+        });
       }
 
       return c.json({
@@ -71,29 +79,29 @@ const vaults = app
         return c.body(null, 204);
       }
 
-      const vault = await c.var.db.readVaultData(vaultId);
-      if (!vault) {
-        // Same reasoning as previous 401 instead of 404
-        return unauthorized(c);
+      const readResult = await c.var.db.readVaultData(vaultId);
+      if (!readResult.ok) {
+        if (readResult.error instanceof VaultNotFoundError) {
+          // Same reasoning as previous 401 instead of 404
+          throw Unauthorized;
+        }
+        throw new HTTPException(500, { message: readResult.error.message });
       }
+      const vault = readResult.data;
 
       if (!vault.vaultData) {
-        return c.json(
-          { error: "invalid application state: null vaultData" },
-          500,
-        );
+        throw new HTTPException(500, {
+          message: "invalid application state: null vaultData",
+        });
       }
 
       // TODO: do patches in sqlite
       const patchResults = applyPatch(vault.vaultData, operations);
       for (const result of patchResults) {
         if (result !== null) {
-          return c.json(
-            {
-              error: "failed to apply patch: " + JSON.stringify(result),
-            },
-            400,
-          );
+          throw new HTTPException(400, {
+            message: "failed to apply patch: " + JSON.stringify(result),
+          });
         }
       }
       // TODO: error handling?

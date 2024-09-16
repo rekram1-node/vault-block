@@ -1,10 +1,10 @@
-import { noAuthApi } from "~/lib/query";
+import { api } from "~/lib/api/query";
 import { LoginForm } from "~/components/auth/LoginForm";
 import { toast } from "sonner";
 
 export function Login() {
   const handleLogin = async () => {
-    const result = await noAuthApi.auth.url.$get();
+    const result = await api.auth.url.$get();
 
     if (result.ok) {
       window.location.assign((await result.json()).url);

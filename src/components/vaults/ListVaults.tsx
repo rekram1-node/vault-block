@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -19,11 +18,11 @@ import { Button } from "~/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Vault } from "./Vault";
 import { CreateVault } from "./CreateVault";
-import { api, keys } from "~/lib/query";
 import { VaultSkeleton } from "./VaultSkeleton";
 import { type Page } from "shared/types/Page";
 import { SyncNotionButton } from "./SyncNotionButton";
 import { SyncNotionAlert } from "./SyncNotionAlert";
+import { useReadAllVaultsQuery } from "~/lib/api/userApi";
 
 type Props = {
   notionPages: Page[] | undefined;
@@ -38,13 +37,8 @@ export default function ListVaults({
   const [currentPage, setCurrentPage] = useState(0);
   const vaultsPerPage = 5;
 
-  const { data: vaults, isLoading: isGetVaultsLoading } = useQuery({
-    queryKey: keys.vaults,
-    queryFn: async () => {
-      const res = await api.user.vaults.$get();
-      return await res.json();
-    },
-  });
+  const { data: vaults, isLoading: isGetVaultsLoading } =
+    useReadAllVaultsQuery();
 
   const numVaults = vaults?.length ?? 0;
   const totalPages = Math.ceil(numVaults / vaultsPerPage);
@@ -63,10 +57,13 @@ export default function ListVaults({
     setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
   };
 
-  const paginatedVaults = vaults?.slice(
-    currentPage * vaultsPerPage,
-    (currentPage + 1) * vaultsPerPage,
-  );
+  const paginatedVaults =
+    vaults !== undefined
+      ? vaults?.slice(
+          currentPage * vaultsPerPage,
+          (currentPage + 1) * vaultsPerPage,
+        )
+      : [];
 
   const creationDisabled = numVaults >= import.meta.env.VITE_MAX_VAULTS;
 

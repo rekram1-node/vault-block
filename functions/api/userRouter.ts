@@ -1,7 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
-import { factory } from "functions/api/hono";
+import { type Context, factory } from "functions/api/hono";
 import { Notion } from "functions/src/lib/notion";
 import { VaultSchema, VaultIdSchema } from "functions/src/types/vault";
+import { HTTPException } from "hono/http-exception";
 import { PageSchema } from "shared/types/Page";
 import { z } from "zod";
 
@@ -15,10 +16,29 @@ interface Vault {
   initialized: boolean;
 }
 
+async function readNumberOfVaults(c: Context) {
+  const result = await c.var.db.readNumberOfVaults(c.var.userId);
+  if (!result.ok) {
+    throw new HTTPException(500, { message: result.error.message });
+  }
+  const numVaults = result.data;
+  if (numVaults >= c.env.MAX_PAGES) {
+    throw new HTTPException(403, {
+      message: "max number of vaults reached",
+    });
+  }
+  return numVaults;
+}
+
 const vaults = v
   .get("/", async (c) => {
     const vaultArr: Vault[] = [];
-    const vaults = await c.var.db.readAllVaults(c.var.userId);
+    const result = await c.var.db.readAllVaults(c.var.userId);
+    if (!result.ok) {
+      throw new HTTPException(500, { message: result.error.message });
+    }
+    const vaults = result.data;
+
     for (const vault of vaults) {
       vaultArr.push({
         id: vault.id,
@@ -46,11 +66,7 @@ const vaults = v
     ),
     async (c) => {
       const body = c.req.valid("json");
-
-      const numVaults = await c.var.db.readNumberOfVaults(c.var.userId);
-      if (numVaults >= c.env.MAX_PAGES) {
-        return c.json({ error: "max number of vaults reached" }, 403);
-      }
+      await readNumberOfVaults(c);
 
       await c.var.db.createVault({
         id: body.id,
@@ -82,27 +98,29 @@ const vaults = v
       const body = c.req.valid("json");
       const id = c.req.param("vaultId");
 
-      const numVaults = await c.var.db.readNumberOfVaults(c.var.userId);
-      if (numVaults >= c.env.MAX_PAGES) {
-        return c.json({ error: "max number of vaults reached" }, 403);
-      }
+      await readNumberOfVaults(c);
 
-      const vault = await c.var.db.activateVault(id, {
+      const vaultResult = await c.var.db.activateVault(id, {
         hdkfSalt: body.hdkfSalt,
         vaultIv: body.vaultIv,
         vaultData: body.encryptedVaultData,
         passwordHash: body.passwordHash,
       });
-      if (!vault) {
-        return c.json({ error: "failed to initialize vault" }, 500);
+      if (!vaultResult.ok) {
+        throw new HTTPException(500, {
+          message: "failed to initialize vault",
+        });
       }
+      const vault = vaultResult.data;
 
       if (vault.notionPageId) {
         const notion = new Notion(c);
         const result = await notion.AppendEmbeddedBlock(vault.notionPageId, id);
-        if (!result.isOk) {
+        if (!result.ok) {
           console.error("failed to append vault to notion:", result.error);
-          return c.json({ error: result.error }, 500);
+          throw new HTTPException(500, {
+            message: result.error.message,
+          });
         }
       }
 
@@ -113,11 +131,14 @@ const vaults = v
   .delete("/:vaultId", async (c) => {
     const vaultId = c.req.param("vaultId");
     if (!vaultId) {
-      return c.json({ error: "invalid or missing validId" }, 400);
+      throw new HTTPException(400, { message: "invalid or missing vaultId" });
     }
     const result = await c.var.db.deleteVault(c.var.userId, vaultId);
-    if (result.rowsAffected === 0) {
-      return c.json({ error: "vault does not exist" }, 404);
+    if (!result.ok) {
+      throw new HTTPException(500, { message: result.error.message });
+    }
+    if (result.data.rowsAffected === 0) {
+      throw new HTTPException(404, { message: "vault does not exist" });
     }
 
     return c.body(null, 204);
@@ -127,11 +148,14 @@ const n = factory.createApp();
 
 const notionRoutes = n
   .get("/", async (c) => {
+    // if (new Date().getDate() === new Date().getDate()) {
+    //   throw new HTTPException(500, { message: "This is an error" });
+    // }
     const notion = new Notion(c);
     const result = await notion.ReadPages();
-    if (!result.isOk) {
+    if (!result.ok) {
       console.error("failed to read pages from notion:", result.error);
-      return c.json({ error: result.error }, 500);
+      throw new HTTPException(500, { message: result.error.message });
     }
 
     return c.json(result.data);
@@ -140,12 +164,11 @@ const notionRoutes = n
   .post("/", zValidator("json", z.array(PageSchema)), async (c) => {
     const notionPages = c.req.valid("json");
 
-    const numVaults = await c.var.db.readNumberOfVaults(c.var.userId);
-    if (numVaults >= c.env.MAX_PAGES) {
-      return c.json({ error: "max number of vaults reached" }, 403);
-    }
+    const numVaults = await readNumberOfVaults(c);
     if (numVaults + notionPages.length >= c.env.MAX_PAGES) {
-      return c.json({ error: "request exceeds max number of vaults" }, 403);
+      throw new HTTPException(403, {
+        message: "request exceeds max number of vaults",
+      });
     }
 
     const createVaultPromises = notionPages.map(async (notionPage) => {
@@ -174,16 +197,15 @@ const notionRoutes = n
     const vaultId = c.req.param("vaultId");
     const pageId = c.req.param("pageId");
     if (!vaultId || !pageId) {
-      return c.json(
-        { error: "missing a required parameter (vaultId, pageId)" },
-        400,
-      );
+      throw new HTTPException(400, {
+        message: "missing a required parameter (vaultId, pageId)",
+      });
     }
     const notion = new Notion(c);
     const result = await notion.AppendEmbeddedBlock(pageId, vaultId);
-    if (!result.isOk) {
+    if (!result.ok) {
       console.error("failed to append vault to notion:", result.error);
-      return c.json({ error: result.error }, 500);
+      throw new HTTPException(500, { message: result.error.message });
     }
 
     return c.body(null, 201);

@@ -5,7 +5,7 @@ import { Router } from "~/Router";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { OauthProvider } from "~/components/auth/OauthProvider";
 import Navbar from "~/components/Navbar";
-import { queryClient } from "~/lib/query";
+import { queryClient } from "~/lib/api/query";
 
 function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -23,11 +23,14 @@ function Layout({ children }: { children: React.ReactNode }) {
   return <div className="h-screen font-sans antialiased">{children}</div>;
 }
 
+// Routes excluded from Oauth protections
+const excludedRoutes = ["/auth/sign-in", "/auth/callback", "/vaults"];
+
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <OauthProvider>
+        <OauthProvider excludedRoutes={excludedRoutes}>
           <Layout>
             <Toaster />
             <Router />

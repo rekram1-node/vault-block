@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import React, { useEffect, useRef } from "react";
-import { noAuthApi } from "~/lib/query";
+import { api } from "~/lib/api/query";
 import { useAuth } from "~/hooks/useAuth";
 import { useMutation } from "@tanstack/react-query";
 import { type ErrorResponse } from "shared/types/ErrorResponse";
@@ -14,7 +14,7 @@ const useFetchTokenMutation = (
 
   const mutation = useMutation({
     mutationFn: async (args?: object) => {
-      const res = await noAuthApi.auth.token.$post(args ?? {});
+      const res = await api.auth.token.$post(args ?? {});
       if (!res.ok) {
         const errorData = (await res.json()) as ErrorResponse;
         throw new Error(errorData.error);
@@ -35,21 +35,30 @@ const useFetchTokenMutation = (
   return mutation;
 };
 
-export function OauthProvider({ children }: { children: React.ReactNode }) {
+export function OauthProvider({
+  children,
+  excludedRoutes,
+}: {
+  children: React.ReactNode;
+  excludedRoutes: string[];
+}) {
   const { accessToken } = useAuth();
   const hasFiredMutationRef = useRef(false);
   const mutation = useFetchTokenMutation(hasFiredMutationRef);
 
-  const disableOAuth =
-    window.location.href.includes("/auth/sign-in") ||
-    window.location.href.includes("/auth/callback") ||
-    window.location.href.includes("/vaults/");
+  const disableOAuth = excludedRoutes.some((path) =>
+    window.location.href.includes(path),
+  );
 
   useEffect(() => {
     if (disableOAuth || hasFiredMutationRef.current) return;
     mutation.mutate(undefined);
     hasFiredMutationRef.current = true;
   }, []);
+
+  // useEffect(() => {
+
+  // }, [])
 
   if (disableOAuth) {
     return <>{children}</>;

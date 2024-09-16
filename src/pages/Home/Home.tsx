@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
 
 import { SyncNotionAlert } from "~/components/vaults/SyncNotionAlert";
 import ListVaults from "~/components/vaults/ListVaults";
 import { useAuth } from "~/hooks/useAuth";
-import { api } from "~/lib/query";
-import { isErrorResponse } from "shared/types/ErrorResponse";
+import { useNotionPagesQuery } from "~/lib/api/userApi";
 
 export function Home() {
   const { newSignup } = useAuth();
@@ -23,24 +21,11 @@ export function Home() {
     isLoading: isGetNotionPagesLoading,
     error,
     isError,
-  } = useQuery({
-    queryKey: [],
-    queryFn: async () => {
-      const res = await api.user.notion.$get();
-      if (res.ok) {
-        return await res.json();
-      } else {
-        const d = await res.json();
-        if (isErrorResponse(d)) {
-          return Promise.reject(d);
-        }
-      }
-    },
-  });
+  } = useNotionPagesQuery();
 
   useEffect(() => {
     if (isError) {
-      toast.error("Failed to read notion pages:" + error.message);
+      toast.error("Failed to read notion pages: " + error.message);
     }
   }, [error, isError]);
 

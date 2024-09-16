@@ -4,6 +4,7 @@ import { authMiddleware, authRouter } from "functions/api/authRouter";
 import { factory } from "functions/api/hono";
 import { userRouter } from "./userRouter";
 import { vaultRouter } from "./vaultRouter";
+import { HTTPException } from "hono/http-exception";
 
 const app = factory.createApp().basePath("/api");
 
@@ -12,7 +13,13 @@ const appRouter = app
 
   .route("/auth", authRouter)
   .route("/user", userRouter)
-  .route("/vaults", vaultRouter);
+  .route("/vaults", vaultRouter)
+  .onError((err, c) => {
+    if (err instanceof HTTPException) {
+      return c.json({ error: err.message }, err.status);
+    }
+    return c.json(err, 500);
+  });
 
 showRoutes(app);
 

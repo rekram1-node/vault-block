@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { useMutation } from "~/hooks/useMutation";
-import { vaultApi, keys } from "~/lib/query";
+import { api, keys } from "~/lib/api/query";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -41,7 +41,7 @@ type Props = {
 
 export function PasswordForm({ vaultId, setIsLocked }: Props) {
   const { setKeys, setData } = usePublicVault();
-  const $validate = vaultApi.vaults[":vaultId"].validate.$post;
+  const $validate = api.vaults[":vaultId"].validate.$post;
   const [isLoading, setIsLoading] = useState(false);
   const { mutate, isPending } = useMutation($validate)({
     mutationKey: keys.password,

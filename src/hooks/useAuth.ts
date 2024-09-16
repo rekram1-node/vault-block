@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Jwt } from "shared/types/jwt";
-import { noAuthApi } from "~/lib/query";
+import { api } from "~/lib/api/query";
 
 interface AuthState {
   newSignup: boolean;
@@ -22,7 +22,7 @@ export const useAuth = create<AuthState>((set) => ({
     return jwt;
   },
   refreshAccessToken: async () => {
-    const result = await noAuthApi.auth.token.$post();
+    const result = await api.auth.token.$post();
     if (result.status === 401 || !result.ok) {
       window.location.href = "/auth/sign-in";
       return undefined;

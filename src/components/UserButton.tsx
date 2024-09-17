@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import React from "react";
-import { oauthApi } from "~/lib/api/query";
+import { oauthApi } from "~/lib/api/api";
 
 // export function UserButton() {
 //   const [isOpen, setIsOpen] = useState(false);

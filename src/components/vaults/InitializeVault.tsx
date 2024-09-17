@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { useMutation } from "~/hooks/useMutation";
-import { oauthApi, keys, queryClient } from "~/lib/api/query";
+import { oauthApi, keys, queryClient } from "~/lib/api/api";
 import {
   Dialog,
   DialogContent,

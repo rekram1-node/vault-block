@@ -12,7 +12,7 @@ import { ThemeToggle } from "~/components/novel/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { decryptTextBlocks, encryptOperationArray } from "~/lib/workerPool";
 import { useMutation } from "~/hooks/useMutation";
-import { api } from "~/lib/api/query";
+import { api } from "~/lib/api/api";
 import { isErrorResponse } from "shared/types/ErrorResponse";
 
 // TODO: add auto lock after inactivity (30 min?)

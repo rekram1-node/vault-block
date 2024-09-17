@@ -30,6 +30,7 @@ export type Env = {
     REDIRECT_URL?: string;
     CF_PAGES_URL?: string;
     DRIZZLE_LOG?: boolean;
+    NODE_ENV?: string;
   };
   Variables: {
     jwtHeader: JwtHeader;

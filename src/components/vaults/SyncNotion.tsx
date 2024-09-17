@@ -9,7 +9,7 @@ import {
 } from "~/components/ui/card";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useMutation } from "~/hooks/useMutation";
-import { oauthApi, keys, queryClient } from "~/lib/api/query";
+import { oauthApi, keys, queryClient } from "~/lib/api/api";
 import { isErrorResponse } from "shared/types/ErrorResponse";
 import { toast } from "sonner";
 import { Skeleton } from "../ui/skeleton";

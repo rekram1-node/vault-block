@@ -2,7 +2,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 
 import { useMutation } from "~/hooks/useMutation";
-import { oauthApi } from "~/lib/api/query";
+import { oauthApi } from "~/lib/api/api";
 import { type Page } from "shared/types/Page";
 import {
   DropdownMenuItem,

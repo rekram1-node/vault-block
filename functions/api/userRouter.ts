@@ -3,7 +3,7 @@ import { type Context, factory } from "functions/api/hono";
 import { Notion } from "functions/src/lib/notion";
 import { VaultSchema, VaultIdSchema } from "functions/src/types/vault";
 import { HTTPException } from "hono/http-exception";
-import { PageSchema } from "shared/types/Page";
+import { type Page, PageSchema } from "shared/types/Page";
 import { z } from "zod";
 
 const v = factory.createApp();
@@ -151,14 +151,16 @@ const notionRoutes = n
     // if (new Date().getDate() === new Date().getDate()) {
     //   throw new HTTPException(500, { message: "This is an error" });
     // }
-    const notion = new Notion(c);
-    const result = await notion.ReadPages();
-    if (!result.ok) {
-      console.error("failed to read pages from notion:", result.error);
-      throw new HTTPException(500, { message: result.error.message });
-    }
+    const p: Page[] = [];
+    return c.json(p);
+    // const notion = new Notion(c);
+    // const result = await notion.ReadPages();
+    // if (!result.ok) {
+    //   console.error("failed to read pages from notion:", result.error);
+    //   throw new HTTPException(500, { message: result.error.message });
+    // }
 
-    return c.json(result.data);
+    // return c.json(result.data);
   })
 
   .post("/", zValidator("json", z.array(PageSchema)), async (c) => {

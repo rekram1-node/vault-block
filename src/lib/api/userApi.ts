@@ -1,4 +1,4 @@
-import { oauthApi, keys } from "~/lib/api/query";
+import { oauthApi, keys } from "~/lib/api/api";
 import { useQuery } from "@tanstack/react-query";
 
 export function useReadAllVaultsQuery() {

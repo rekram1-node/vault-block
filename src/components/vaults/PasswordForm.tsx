@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { useMutation } from "~/hooks/useMutation";
-import { api, keys } from "~/lib/api/query";
+import { api, keys } from "~/lib/api/api";
 import { Button } from "~/components/ui/button";
 import {
   Card,

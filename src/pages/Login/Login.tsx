@@ -1,4 +1,4 @@
-import { api } from "~/lib/api/query";
+import { api } from "~/lib/api/api";
 import { LoginForm } from "~/components/auth/LoginForm";
 import { toast } from "sonner";
 

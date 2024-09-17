@@ -4,7 +4,21 @@ import { hc } from "hono/client";
 import { isErrorResponse } from "shared/types/ErrorResponse";
 import { useAuth } from "~/hooks/useAuth";
 
-const unauthedApi = hc<AppType>("/");
+const unauthedApi = hc<AppType>("/", {
+  fetch: (input: RequestInfo | URL, requestInit?: RequestInit) => {
+    const headers = {
+      "content-type": "application/json",
+      ...requestInit?.headers,
+    };
+
+    return fetch(input, {
+      credentials: "include",
+      method: requestInit?.method,
+      headers,
+      body: requestInit?.body,
+    });
+  },
+});
 
 class HttpError extends Error {
   constructor(
@@ -26,6 +40,7 @@ const oauthClient = hc<AppType>("/", {
     };
 
     const response = await fetch(input, {
+      credentials: "include",
       method: requestInit?.method,
       headers,
       body: requestInit?.body,

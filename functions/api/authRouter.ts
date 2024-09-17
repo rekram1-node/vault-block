@@ -41,14 +41,18 @@ export const authMiddleware: MiddlewareHandler = async (c: Context, next) => {
   await next();
 };
 
+function getRedirectUri(c: Context) {
+  const url = new URL(c.req.url);
+  const redirect = c.env.REDIRECT_URL ?? `${url.origin}/auth/callback`;
+  return redirect;
+}
+
 const auth = app
   .get("/url", async (c) => {
-    const url = new URL(c.req.url);
-    const redirect = c.env.REDIRECT_URL ?? `${url.origin}/auth/callback`;
     return c.json({
       url: `${auth_url}?${new URLSearchParams({
         client_id: c.env.NOTION_CLIENT_ID,
-        redirect_uri: redirect,
+        redirect_uri: getRedirectUri(c),
         owner: "owner",
         response_type: "code",
       }).toString()}`,
@@ -97,7 +101,8 @@ const auth = app
       token = await jwt.sign<JwtPayload, JwtHeader>(
         {
           iat: now,
-          exp: now + 15 * 60,
+          // exp: now + 15 * 60,
+          exp: now + 5 * 60, // UNDO THIS<<<<
           tokenType: "access_token",
           sub: t.payload.sub,
           token: t.payload.token,
@@ -110,15 +115,13 @@ const auth = app
       const encodedCreds = btoa(
         `${c.env.NOTION_CLIENT_ID}:${c.env.NOTION_CLIENT_SECRET}`,
       );
-      const url = new URL(c.req.url);
-      const redirect = c.env.REDIRECT_URL ?? `${url.origin}/auth/callback`;
 
       const result = await req<TokenResponse>(token_url, {
         method: "POST",
         body: JSON.stringify({
           code,
           grant_type: "authorization_code",
-          redirect_uri: redirect,
+          redirect_uri: getRedirectUri(c),
         }),
         headers: {
           "Content-Type": "application/json",
@@ -136,7 +139,8 @@ const auth = app
       token = await jwt.sign<JwtPayload, JwtHeader>(
         {
           iat: now,
-          exp: now + 15 * 60,
+          // exp: now + 15 * 60,
+          exp: now + 5 * 60, // UNDO THIS<<<<
           tokenType: "access_token",
           sub: owner.user.id,
           token: access_token,
@@ -170,10 +174,11 @@ const auth = app
       );
 
       const domain = new URL(c.req.url).host;
+      console.log(c.env);
       setCookie(c, refresh_token_cookie, newRefreshToken, {
         path: "/",
         secure: true,
-        domain,
+        domain: c.env.NODE_ENV === "development" ? undefined : domain,
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
         expires: new Date(refreshTokenExpiration),

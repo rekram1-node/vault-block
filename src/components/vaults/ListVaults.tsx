@@ -23,6 +23,7 @@ import { type Page } from "shared/types/Page";
 import { SyncNotionButton } from "./SyncNotionButton";
 import { SyncNotionAlert } from "./SyncNotionAlert";
 import { useReadAllVaultsQuery } from "~/lib/api/userApi";
+import { useFetchTokenMutation } from "../auth/OauthProvider";
 
 type Props = {
   notionPages: Page[] | undefined;
@@ -35,7 +36,8 @@ export default function ListVaults({
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  const vaultsPerPage = 5;
+  const { mutate } = useFetchTokenMutation();
+  const vaultsPerPage = import.meta.env.VITE_MAX_VAULTS ?? 5;
 
   const { data: vaults, isLoading: isGetVaultsLoading } =
     useReadAllVaultsQuery();
@@ -139,7 +141,11 @@ export default function ListVaults({
           )}
         </CardContent>
         <CardFooter className="absolute bottom-0 left-0">
-          <SyncNotionButton disabled={false} onClick={() => setIsOpen(true)} />
+          {/* <SyncNotionButton disabled={false} onClick={() => setIsOpen(true)} /> */}
+          <SyncNotionButton
+            disabled={false}
+            onClick={() => mutate(undefined)}
+          />
         </CardFooter>
         {totalPages > 1 && (
           <CardFooter className="absolute bottom-0 right-0">

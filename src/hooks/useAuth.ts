@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Jwt } from "shared/types/jwt";
-import { api } from "~/lib/api/query";
+import { api } from "~/lib/api/api";
 
 interface AuthState {
   newSignup: boolean;
@@ -8,6 +8,7 @@ interface AuthState {
   accessToken: Jwt | undefined;
   setAccessToken: (token: string) => Jwt;
   refreshAccessToken: () => Promise<Jwt | undefined>;
+  reset: () => void;
 }
 
 export const useAuth = create<AuthState>((set) => ({
@@ -32,4 +33,40 @@ export const useAuth = create<AuthState>((set) => ({
     set({ accessToken: token });
     return token;
   },
+  reset() {
+    set({ accessToken: undefined });
+  },
 }));
+
+// import create from "zustand"
+// import { persist } from "zustand/middleware"
+
+// const defaultState = {
+//   foo: "bar"
+// }
+
+// export const useStore = create(persist(
+//   (set) => ({
+//     ...defaultState,
+//     reset: () => {
+//       useStore.persist.clearStorage();
+//       set(defaultState);
+//     }
+//   }),
+//   {
+//     ...
+//   }
+// ))
+
+// // then somewhere in your app
+// const myStore = useStore()
+
+// useEffect(() => {
+//   const intervalId = setInterval(() => {
+//     myStore.reset()
+//   }, 1000 * 60 * 5);
+
+//   return () => {
+//     clearInterval(intervalId)
+//   }
+// }, [])

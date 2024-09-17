@@ -1,4 +1,4 @@
-import { api } from "~/lib/api/query";
+import { api } from "~/lib/api/api";
 
 // async function getNotionPages() {
 //     const res = await api.user.notion.$get();

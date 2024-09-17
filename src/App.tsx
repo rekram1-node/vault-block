@@ -5,7 +5,7 @@ import { Router } from "~/Router";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { OauthProvider } from "~/components/auth/OauthProvider";
 import Navbar from "~/components/Navbar";
-import { queryClient } from "~/lib/api/query";
+import { queryClient } from "~/lib/api/api";
 
 function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();

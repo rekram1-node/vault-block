@@ -2,7 +2,7 @@ import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
 import { useMutation } from "~/hooks/useMutation";
-import { oauthApi, keys, queryClient } from "~/lib/api/query";
+import { oauthApi, keys, queryClient } from "~/lib/api/api";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,

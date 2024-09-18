@@ -104,7 +104,6 @@ export function ListNotionPages({ pages, isLoading, vaultId }: Props) {
           : itemsToDisplay?.map((page) => (
               <NotionPage page={page} vaultId={vaultId} key={page.id} />
             ))}
-
         {!isExpanded && numPages > 3 && (
           <>
             <DropdownMenuSeparator />

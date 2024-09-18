@@ -1,15 +1,12 @@
 import { useLocation } from "wouter";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { api } from "~/lib/api/api";
 import { useAuth } from "~/hooks/useAuth";
 import { useMutation } from "@tanstack/react-query";
 import { type ErrorResponse } from "shared/types/ErrorResponse";
 import { LoadingSpinner } from "../Loading";
 import { toast } from "sonner";
-import {
-  useRefreshTokenMutation,
-  useRefreshTokenQuery,
-} from "~/lib/api/authApi";
+import { useRefreshTokenMutation } from "~/lib/api/authApi";
 
 export function OauthProvider({
   children,
@@ -19,25 +16,19 @@ export function OauthProvider({
   excludedRoutes: string[];
 }) {
   const { accessToken } = useAuth();
-  const { mutate, isPending, isError, error } = useRefreshTokenMutation();
+  const hasSentRefreshRequest = useRef(false);
+  const { mutate, isPending, isError, error } = useRefreshTokenMutation(() => hasSentRefreshRequest.current = false);
 
   const disableOAuth = excludedRoutes.some((path) =>
     window.location.pathname.includes(path),
   );
   const dontSendRequest = disableOAuth || isPending || isError;
 
-  const [pollingEnabled, setPollingEnabled] = useState(false);
-  const { isError: isPollingError, error: pollingError } = useRefreshTokenQuery(
-    pollingEnabled && !dontSendRequest,
-    4 * 60 * 1000, // refresh every 4 minutes
-  );
-
   useEffect(() => {
-    if (dontSendRequest) return;
-    if (!accessToken && !isPending) {
+    if (dontSendRequest || hasSentRefreshRequest.current) return;
+    if (!accessToken) {
       mutate(undefined);
-    } else {
-      setPollingEnabled(true);
+      hasSentRefreshRequest.current = true;
     }
   }, [mutate, accessToken, dontSendRequest]);
 
@@ -45,10 +36,7 @@ export function OauthProvider({
     if (isError) {
       toast.error(`Failed to get access token: ${error.message}`);
     }
-    if (isPollingError) {
-      toast.error(`Failed to get access token: ${pollingError.message}`);
-    }
-  }, [isError, error, isPollingError, pollingError]);
+  }, [isError, error]);
 
   if (disableOAuth) {
     return <>{children}</>;
@@ -72,6 +60,8 @@ export function Callback() {
   const [, navigate] = useLocation();
   const { setAccessToken, setNewSignup } = useAuth();
 
+  const hasMutated = useRef(false);
+
   const { mutate, isPending } = useMutation({
     mutationFn: async (args?: object) => {
       const res = await api.auth["sign-in"].$post(args ?? {});
@@ -91,10 +81,12 @@ export function Callback() {
   });
 
   useEffect(() => {
-    if (isPending || accessToken) return;
+    if (hasMutated.current || isPending || accessToken) return;
+
     const searchParams = new URLSearchParams(window.location.search);
     mutate({ query: { code: searchParams.get("code") } });
-  }, [accessToken, navigate]);
+    hasMutated.current = true;
+  }, [accessToken, navigate, isPending]);
 
   useEffect(() => {
     if (accessToken) {

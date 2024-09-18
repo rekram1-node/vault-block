@@ -102,16 +102,18 @@ export function Vault({
                   <div className="pr-2">Copy Link</div>
                   <CopyIcon size={18} />
                 </DropdownMenuItem>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
-                    <div className="pr-2">Add to Notion</div>
-                  </DropdownMenuSubTrigger>
-                  <ListNotionPages
-                    pages={notionPages}
-                    isLoading={isNotionPagesLoading}
-                    vaultId={id}
-                  />
-                </DropdownMenuSub>
+                {notionPages?.length !== 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <div className="pr-2">Add to Notion</div>
+                    </DropdownMenuSubTrigger>
+                    <ListNotionPages
+                      pages={notionPages}
+                      isLoading={isNotionPagesLoading}
+                      vaultId={id}
+                    />
+                  </DropdownMenuSub>
+                )}
 
                 <DropdownMenuItem
                   className="flex items-center justify-between"

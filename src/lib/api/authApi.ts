@@ -27,7 +27,7 @@ export function useRefreshTokenQuery(
   });
 }
 
-export function useRefreshTokenMutation() {
+export function useRefreshTokenMutation(onSuccess?: () => void) {
   const { setAccessToken } = useAuth();
   const [, navigate] = useLocation();
   return useMutation({
@@ -40,7 +40,10 @@ export function useRefreshTokenMutation() {
       return null;
     },
     onSuccess: (data) => {
-      if (data) setAccessToken(data.token);
+      if (data) {
+        setAccessToken(data.token);
+        if (onSuccess) onSuccess();
+      }
     },
     onError: () => {
       navigate("/auth/sign-in");

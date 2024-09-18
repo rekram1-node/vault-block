@@ -24,9 +24,10 @@ function Layout({ children }: { children: React.ReactNode }) {
 }
 
 // Routes excluded from Oauth protections
-const excludedRoutes = ["/auth/sign-in", "/auth/callback", "/vaults"];
+const excludedRoutes = ["/auth/sign-in", "/auth/callback", "/vaults", "/temp"];
 
 export function App() {
+  console.log(window.location.pathname);
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

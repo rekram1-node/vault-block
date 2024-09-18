@@ -14,12 +14,12 @@ export type JwtHeader = {
   typ: string;
 };
 
-export type TokenType = "access_token" | "refresh_token";
+export type token_type = "access_token" | "refresh_token";
 
 export type JwtPayload = {
   sub: string;
   token: string;
-  tokenType?: TokenType;
+  token_type?: token_type;
 
   iat?: number;
   exp: number;

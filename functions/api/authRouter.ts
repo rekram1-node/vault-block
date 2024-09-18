@@ -47,159 +47,148 @@ function getRedirectUri(c: Context) {
   return redirect;
 }
 
+async function mintJwt(c: Context, sub: string, token: string, now?: number) {
+  if (!now) {
+    now = Math.floor(Date.now() / 1000); // Current UTC time in seconds
+  }
+  return jwt.sign<JwtPayload, JwtHeader>(
+    {
+      iat: now,
+      // exp: now + 15 * 60,
+      exp: now + 5 * 60, // UNDO THIS<<<<
+      token_type: "access_token",
+      sub: sub,
+      token,
+      aud,
+      iss,
+    },
+    c.env.ACCESS_TOKEN_SECRET,
+  );
+}
+
 const auth = app
-  .get("/url", async (c) => {
-    return c.json({
-      url: `${auth_url}?${new URLSearchParams({
-        client_id: c.env.NOTION_CLIENT_ID,
-        redirect_uri: getRedirectUri(c),
-        owner: "owner",
-        response_type: "code",
-      }).toString()}`,
-    });
+  .get("/notion", async (c) => {
+    const url = `${auth_url}?${new URLSearchParams({
+      client_id: c.env.NOTION_CLIENT_ID,
+      redirect_uri: getRedirectUri(c),
+      owner: "owner",
+      response_type: "code",
+    }).toString()}`;
+    return c.json({ url });
   })
 
-  .post("/token", async (c) => {
-    const refreshToken = getCookie(c, refresh_token_cookie);
+  .post("/sign-in", async (c) => {
     const code = c.req.query("code");
-    if (!code && !refreshToken) {
-      console.error("missing code and refresh token");
+    if (!code) {
       throw Unauthorized;
     }
     if (code === "null") {
-      return c.json({ error: "login cancelled" }, 400);
+      throw new HTTPException(400, { message: "login cancelled" });
+    }
+    const encodedCreds = btoa(
+      `${c.env.NOTION_CLIENT_ID}:${c.env.NOTION_CLIENT_SECRET}`,
+    );
+
+    const result = await req<TokenResponse>(token_url, {
+      method: "POST",
+      body: JSON.stringify({
+        code,
+        grant_type: "authorization_code",
+        redirect_uri: getRedirectUri(c),
+      }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Basic " + encodedCreds,
+      },
+    });
+    if (!result.ok) {
+      console.error("unable to fetch token:", result.error);
+      return c.json({ error: "failed to fetch token" }, 500);
     }
 
-    let token: string;
+    const { access_token, owner } = result.data;
+    const now = Math.floor(Date.now() / 1000); // Current UTC time in seconds
+    const token = await mintJwt(c, owner.user.id, access_token, now);
+
+    const refreshTokenExpiration = now + 7 * 24 * 60 * 60;
+    const newRefreshToken = await jwt.sign<JwtPayload, JwtHeader>(
+      {
+        iat: now,
+        exp: refreshTokenExpiration,
+        sub: owner.user.id,
+        token: access_token,
+        token_type: "refresh_token",
+        aud,
+        iss,
+      },
+      c.env.REFRESH_TOKEN_SECRET,
+    );
+
+    // add cookie to cache
+    await c.env.VAULT_BLOCK.put(
+      getKVKey(owner.user.id, newRefreshToken),
+      "true",
+      {
+        expiration: refreshTokenExpiration,
+      },
+    );
+
+    const domain = new URL(c.req.url).host;
+    console.log(c.env);
+    setCookie(c, refresh_token_cookie, newRefreshToken, {
+      path: "/",
+      secure: true,
+      domain: c.env.NODE_ENV === "development" ? undefined : domain,
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+      expires: new Date(refreshTokenExpiration),
+      sameSite: "Strict",
+    });
+
+    const user = await c.var.db.readUser(owner.user.id);
     let signup = false;
-
-    if (!code && refreshToken) {
-      const t = jwt.decode<JwtPayload, JwtHeader>(refreshToken);
-      if (!t.header || !t.payload || t.payload.tokenType != "refresh_token") {
-        console.error("missing relavent token attributes:", t);
-        throw Unauthorized;
-      }
-
-      const isValid = await jwt.verify(
-        refreshToken,
-        c.env.REFRESH_TOKEN_SECRET,
-      );
-      if (!isValid) {
-        console.error("invalid refresh JWT:", refreshToken);
-        throw Unauthorized;
-      }
-
-      const realToken = await c.env.VAULT_BLOCK.get(
-        getKVKey(t.payload.sub, refreshToken),
-      );
-      if (!realToken) {
-        console.error("token doesn't exist...");
-        throw Unauthorized;
-      }
-
-      const now = Math.floor(Date.now() / 1000); // Current UTC time in seconds
-      token = await jwt.sign<JwtPayload, JwtHeader>(
-        {
-          iat: now,
-          // exp: now + 15 * 60,
-          exp: now + 5 * 60, // UNDO THIS<<<<
-          tokenType: "access_token",
-          sub: t.payload.sub,
-          token: t.payload.token,
-          aud,
-          iss,
-        },
-        c.env.ACCESS_TOKEN_SECRET,
-      );
-    } else {
-      const encodedCreds = btoa(
-        `${c.env.NOTION_CLIENT_ID}:${c.env.NOTION_CLIENT_SECRET}`,
-      );
-
-      const result = await req<TokenResponse>(token_url, {
-        method: "POST",
-        body: JSON.stringify({
-          code,
-          grant_type: "authorization_code",
-          redirect_uri: getRedirectUri(c),
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Basic " + encodedCreds,
-        },
+    if (!user) {
+      signup = true;
+      const result = await c.var.db.createUser({
+        id: owner.user.id,
       });
       if (!result.ok) {
-        console.error("unable to fetch token:", result.error);
-        return c.json({ error: "failed to fetch token" }, 500);
-      }
-
-      const { access_token, owner } = result.data;
-
-      const now = Math.floor(Date.now() / 1000); // Current UTC time in seconds
-      token = await jwt.sign<JwtPayload, JwtHeader>(
-        {
-          iat: now,
-          // exp: now + 15 * 60,
-          exp: now + 5 * 60, // UNDO THIS<<<<
-          tokenType: "access_token",
-          sub: owner.user.id,
-          token: access_token,
-          aud,
-          iss,
-        },
-        c.env.ACCESS_TOKEN_SECRET,
-      );
-
-      const refreshTokenExpiration = now + 7 * 24 * 60 * 60;
-      const newRefreshToken = await jwt.sign<JwtPayload, JwtHeader>(
-        {
-          iat: now,
-          exp: refreshTokenExpiration,
-          sub: owner.user.id,
-          token: access_token,
-          tokenType: "refresh_token",
-          aud,
-          iss,
-        },
-        c.env.REFRESH_TOKEN_SECRET,
-      );
-
-      // add cookie to cache
-      await c.env.VAULT_BLOCK.put(
-        getKVKey(owner.user.id, newRefreshToken),
-        "true",
-        {
-          expiration: refreshTokenExpiration,
-        },
-      );
-
-      const domain = new URL(c.req.url).host;
-      console.log(c.env);
-      setCookie(c, refresh_token_cookie, newRefreshToken, {
-        path: "/",
-        secure: true,
-        domain: c.env.NODE_ENV === "development" ? undefined : domain,
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
-        expires: new Date(refreshTokenExpiration),
-        sameSite: "Strict",
-      });
-
-      const user = await c.var.db.readUser(owner.user.id);
-      if (!user) {
-        signup = true;
-        const result = await c.var.db.createUser({
-          id: owner.user.id,
-        });
-        if (!result) {
-          console.error("unable to create user");
-          return c.json({ error: "failed to create user" }, 500);
-        }
+        return c.json({ error: result.error.message }, 500);
       }
     }
-
     return c.json({ token, newSignup: signup });
   })
+
+  .post("/refresh", async (c) => {
+    const refreshToken = getCookie(c, refresh_token_cookie);
+    if (!refreshToken) {
+      return c.redirect("/auth/sign-in");
+    }
+
+    const t = jwt.decode<JwtPayload, JwtHeader>(refreshToken);
+    if (!t.header || !t.payload || t.payload.token_type != "refresh_token") {
+      console.error("missing relavent token attributes:", t);
+      throw Unauthorized;
+    }
+
+    const isValid = await jwt.verify(refreshToken, c.env.REFRESH_TOKEN_SECRET);
+    if (!isValid) {
+      console.error("invalid refresh JWT:", refreshToken);
+      throw Unauthorized;
+    }
+
+    const realToken = await c.env.VAULT_BLOCK.get(
+      getKVKey(t.payload.sub, refreshToken),
+    );
+    if (!realToken) {
+      console.error("token doesn't exist...");
+      throw Unauthorized;
+    }
+
+    const token = await mintJwt(c, t.payload.sub, t.payload.token);
+    return c.json({ token });
+  })
+
   .post("/logout", async (c) => {
     const cookie = getCookie(c, refresh_token_cookie);
     if (cookie) {

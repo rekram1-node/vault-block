@@ -8,6 +8,7 @@ import { requestId } from "hono/request-id";
 // } from "hono/context-storage";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
+import { csrf } from "hono/csrf";
 
 import { Repository } from "functions/src/db/repository";
 import { type JwtHeader, type JwtPayload } from "shared/types/jwt";
@@ -47,7 +48,7 @@ export type Context = HonoContext<Env>;
 
 export const factory = createFactory<Env>({
   initApp: (app) => {
-    app.use(logger()).use(requestId());
+    app.use(logger()).use(requestId()).use(csrf());
     // .use(contextStorage());
 
     app.use(async (c, next) => {

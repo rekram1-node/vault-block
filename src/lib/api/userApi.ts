@@ -6,7 +6,7 @@ export function useReadAllVaultsQuery() {
     queryKey: keys.vaults,
     queryFn: async () => {
       const res = await oauthApi.user.vaults.$get();
-      return await res.json();
+      return res.json();
     },
   });
 }

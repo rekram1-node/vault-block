@@ -1,40 +1,15 @@
 import { useLocation } from "wouter";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { api } from "~/lib/api/api";
 import { useAuth } from "~/hooks/useAuth";
 import { useMutation } from "@tanstack/react-query";
 import { type ErrorResponse } from "shared/types/ErrorResponse";
 import { LoadingSpinner } from "../Loading";
 import { toast } from "sonner";
-
-export const useFetchTokenMutation = (
-  hasFiredRef?: React.MutableRefObject<boolean>,
-) => {
-  const { setAccessToken, setNewSignup } = useAuth();
-  const [, navigate] = useLocation();
-
-  const mutation = useMutation({
-    mutationFn: async (args?: object) => {
-      const res = await api.auth.token.$post(args ?? {});
-      if (!res.ok) {
-        const errorData = (await res.json()) as ErrorResponse;
-        throw new Error(errorData.error);
-      }
-      return await res.json();
-    },
-    onSuccess: (data) => {
-      setNewSignup(data.newSignup);
-      setAccessToken(data.token);
-      if (hasFiredRef) hasFiredRef.current = false;
-    },
-    onError: () => {
-      navigate("/auth/sign-in");
-      if (hasFiredRef) hasFiredRef.current = false;
-    },
-  });
-
-  return mutation;
-};
+import {
+  useRefreshTokenMutation,
+  useRefreshTokenQuery,
+} from "~/lib/api/authApi";
 
 export function OauthProvider({
   children,
@@ -44,45 +19,39 @@ export function OauthProvider({
   excludedRoutes: string[];
 }) {
   const { accessToken } = useAuth();
-  const [, navigate] = useLocation();
-  const { mutate, isPending, isError, error } = useFetchTokenMutation();
+  const { mutate, isPending, isError, error } = useRefreshTokenMutation();
 
   const disableOAuth = excludedRoutes.some((path) =>
-    window.location.href.includes(path),
+    window.location.pathname.includes(path),
   );
-  const dontSendRequest = isPending || isError;
+  const dontSendRequest = disableOAuth || isPending || isError;
+
+  const [pollingEnabled, setPollingEnabled] = useState(false);
+  const { isError: isPollingError, error: pollingError } = useRefreshTokenQuery(
+    pollingEnabled && !dontSendRequest,
+    4 * 60 * 1000, // refresh every 4 minutes
+  );
 
   useEffect(() => {
-    if (disableOAuth || dontSendRequest || isPending) return;
-    if (!accessToken) {
+    if (dontSendRequest) return;
+    if (!accessToken && !isPending) {
       mutate(undefined);
+    } else {
+      setPollingEnabled(true);
     }
-  }, [disableOAuth, mutate, accessToken]);
+  }, [mutate, accessToken, dontSendRequest]);
 
-  if (accessToken && !dontSendRequest) {
-    console.log("true");
-    const now = Math.floor(Date.now() / 1000);
-    const exp = accessToken.body.exp;
-    const refreshTime = exp - 60; // 1 min b4 expiration
-    if (refreshTime <= now) {
-      console.log("mutating");
-      mutate(undefined);
+  useEffect(() => {
+    if (isError) {
+      toast.error(`Failed to get access token: ${error.message}`);
     }
-  }
-
-  if (isError) {
-    toast.error(`Failed to get access token: ${error.message}`);
-    navigate("/auth/sign-in");
-  }
+    if (isPollingError) {
+      toast.error(`Failed to get access token: ${pollingError.message}`);
+    }
+  }, [isError, error, isPollingError, pollingError]);
 
   if (disableOAuth) {
     return <>{children}</>;
-  }
-
-  if (accessToken === undefined) {
-    console.log("access token:", accessToken);
-    console.log("isPending:", isPending);
-    console.log("showing spinner...");
   }
 
   return (
@@ -99,15 +68,30 @@ export function OauthProvider({
 }
 
 export function Callback() {
-  const called = useRef(false);
   const { accessToken } = useAuth();
   const [, navigate] = useLocation();
-  const { mutate } = useFetchTokenMutation(called);
+  const { setAccessToken, setNewSignup } = useAuth();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (args?: object) => {
+      const res = await api.auth["sign-in"].$post(args ?? {});
+      if (!res.ok) {
+        const errorData = (await res.json()) as ErrorResponse;
+        throw new Error(errorData.error);
+      }
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      setNewSignup(data.newSignup);
+      setAccessToken(data.token);
+    },
+    onError: () => {
+      navigate("/auth/sign-in");
+    },
+  });
 
   useEffect(() => {
-    if (called.current || accessToken) return;
-    called.current = true;
-
+    if (isPending || accessToken) return;
     const searchParams = new URLSearchParams(window.location.search);
     mutate({ query: { code: searchParams.get("code") } });
   }, [accessToken, navigate]);

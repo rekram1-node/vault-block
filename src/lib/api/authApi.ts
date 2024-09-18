@@ -1,24 +1,49 @@
 import { api } from "~/lib/api/api";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
+import { useAuth } from "~/hooks/useAuth";
 
-// async function getNotionPages() {
-//     const res = await api.user.notion.$get();
-//     if (!res.ok) {
-//       throw new Error(JSON.stringify(await res.json()));
-//     }
-//     return res.json();
-//   }
+export function useRefreshTokenQuery(
+  enabled: boolean,
+  refetchInterval: number,
+) {
+  const { setAccessToken } = useAuth();
+  return useQuery({
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    queryKey: [],
+    queryFn: async () => {
+      console.log("refresh token query", enabled);
+      const res = await api.auth.refresh.$post();
+      if (res.ok) {
+        const { token } = await res.json();
+        setAccessToken(token);
+      }
+      return null;
+    },
+    enabled,
+    refetchInterval,
+    refetchIntervalInBackground: true,
+  });
+}
 
-//   export const notionPagesQuery = queryOptions({
-//     queryKey: keys.notion,
-//     queryFn: getNotionPages,
-//   });
-
-async function newToken() {
-  //   const res = await api.auth.url.$get();
-  const res = await api.auth.token.$post();
-  if (!res.ok) {
-    // throw
-  }
-  const data = await res.json();
-  //   res.json()
+export function useRefreshTokenMutation() {
+  const { setAccessToken } = useAuth();
+  const [, navigate] = useLocation();
+  return useMutation({
+    mutationFn: async (args?: object) => {
+      console.log("refresh token mutation");
+      const res = await api.auth.refresh.$post(args ?? {});
+      if (res.ok) {
+        return res.json();
+      }
+      return null;
+    },
+    onSuccess: (data) => {
+      if (data) setAccessToken(data.token);
+    },
+    onError: () => {
+      navigate("/auth/sign-in");
+    },
+  });
 }

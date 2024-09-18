@@ -32,19 +32,38 @@ class HttpError extends Error {
 
 const oauthClient = hc<AppType>("/", {
   fetch: async (input: RequestInfo | URL, requestInit?: RequestInit) => {
-    const { accessToken } = useAuth.getState();
-    const headers = {
-      "content-type": "application/json",
-      ...(accessToken && { Authorization: `Bearer ${accessToken.raw}` }),
-      ...requestInit?.headers,
+    const { accessToken, setAccessToken } = useAuth.getState();
+
+    const fetchWithAuth = async (token: string | undefined) => {
+      const headers = {
+        "content-type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...requestInit?.headers,
+      };
+
+      const response = await fetch(input, {
+        credentials: "include",
+        method: requestInit?.method,
+        headers,
+        body: requestInit?.body,
+      });
+
+      return response;
     };
 
-    const response = await fetch(input, {
-      credentials: "include",
-      method: requestInit?.method,
-      headers,
-      body: requestInit?.body,
-    });
+    let response = await fetchWithAuth(accessToken?.raw);
+
+    // If 401, try refreshing the token
+    if (response.status === 401) {
+      console.log("refresh on interceptor");
+      const res = await api.auth.refresh.$post();
+      if (res.ok) {
+        const { token } = await res.json();
+        setAccessToken(token);
+        // retry request
+        response = await fetchWithAuth(token);
+      }
+    }
 
     if (!response.ok) {
       const err = await response.json();
@@ -65,7 +84,7 @@ const oauthClient = hc<AppType>("/", {
 export const oauthApi = oauthClient.api;
 export const api = unauthedApi.api;
 
-const http_status_no_retry = [400, 403, 404];
+const http_status_no_retry = [400, 403, 404, 302];
 
 export const queryClient = new QueryClient({
   defaultOptions: {

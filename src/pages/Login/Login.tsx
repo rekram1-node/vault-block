@@ -4,8 +4,7 @@ import { toast } from "sonner";
 
 export function Login() {
   const handleLogin = async () => {
-    const result = await api.auth.url.$get();
-
+    const result = await api.auth.notion.$get();
     if (result.ok) {
       window.location.assign((await result.json()).url);
     } else {

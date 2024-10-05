@@ -4,6 +4,7 @@ pages_build_output_dir = "./dist"
 
 [vars]
 VITE_MAX_VAULTS=5
+BUN_VERSION = "1.1.29"
 
 [[kv_namespaces]]
 binding = "VAULT_BLOCK"

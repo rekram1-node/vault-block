@@ -1,0 +1,30 @@
+---
+import ContentSection from "~/components/content-section.astro";
+---
+
+<ContentSection title="How It Works" id="how-it-works">
+  <Fragment slot="lead">
+    Your data is protected with state-of-the-art encryption methods that ensure
+    <span class="text-primary"> maximum security and privacy</span>.
+  </Fragment>
+
+  <div class="mx-auto max-w-3xl text-center">
+    <h2 class="text-lg font-bold text-left">Encryption Process Overview</h2>
+    <ul class="list-disc text-offset text-sm mt-2 text-left pl-5">
+      <li>Our encryption process protects your data at every stage, from input to secure storage.</li>
+      <li>We follow best practices as suggested by the Open Worldwide Application Security Project (OWASP).</li>
+      <li>Neither your password nor unencrypted data ever leave your machine.</li>
+      <li>Even if our system was compromised, an attacker with access to your encrypted data and password hash would still be unable to decrypt any content.</li>
+      <li>Our flow mirrors that of Bitwarden, using AES and Argon2 encryption and hashing algorithms.</li>
+      <li>Vault Block uses secure defaults to fully comply with OWASP recommendations.</li>
+    </ul>
+  </div>
+
+  <div class="flex flex-col items-center">
+    <img src="/unlock-flow.svg" alt="Encryption Process Diagram" class="max-w-full mb-4 -mt-20" />
+    <p class="text-offset text-sm mt-2 pt-2">
+      This diagram illustrates how your data is decrypted securely on your machine.
+    </p>
+  </div>
+  
+</ContentSection>

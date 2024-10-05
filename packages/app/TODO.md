@@ -24,11 +24,7 @@ token should only be valid for say an hour
 ## Features
 - Add table block
 - Add image uploads
-- Fully integrate with Notion
-- Better UX
-- Wording Updates
 - Collaboration
-- Marketing/Landing Page
 
 ## Docs / Marketing
 - Create landing page

@@ -1,0 +1,28 @@
+---
+export interface Props {
+  id: string;
+  title: string;
+  titleWrap?: boolean; // Optional prop to control title wrapping
+}
+
+const { title, id, titleWrap = false } = Astro.props;
+
+---
+
+<section
+  id={id}
+  class="flex scroll-mt-24 flex-col items-center gap-4 space-y-8"
+>
+  <div class="flex flex-col items-center gap-4">
+    <slot name="eyebrow" />
+    <h2
+      class={`gradient-text text-center font-extrabold tracking-tight text-6xl ${titleWrap ? 'max-w-3xl break-words' : ''}`}
+    >
+      {title}
+    </h2>
+  </div>
+  <p class="max-w-xl text-center font-extrabold text-2xl">
+    <slot name="lead" />
+  </p>
+  <slot />
+</section>

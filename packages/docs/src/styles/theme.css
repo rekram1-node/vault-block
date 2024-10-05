@@ -1,0 +1,39 @@
+/* [data-theme="light"] {
+  --color-primary: theme("colors.pink.500");
+  --color-secondary: theme("colors.indigo.500");
+  --color-text: theme("colors.gray.900");
+  --color-text-offset: theme("colors.gray.600");
+  --color-background: theme("colors.gray.50");
+  --color-background-offset: theme("colors.gray.100");
+  --color-border: theme("colors.gray.900" / 10%);
+}
+
+[data-theme="dark"] {
+  --color-primary: theme("colors.pink.400");
+  --color-secondary: theme("colors.indigo.400");
+  --color-text: theme("colors.gray.50");
+  --color-text-offset: theme("colors.gray.400");
+  --color-background: theme("colors.gray.900");
+  --color-background-offset: theme("colors.gray.800");
+  --color-border: theme("colors.gray.50" / 10%);
+} */
+
+[data-theme="light"] {
+  --color-primary: hsl(13, 88%, 58%);
+  --color-secondary: hsl(240, 7.91%, 74.93%);
+  --color-text: hsl(240, 25%, 15%);
+  --color-text-offset: hsl(240, 11.49%, 48.47%);
+  --color-background: hsl(240, 27%, 94%);
+  --color-background-offset: hsl(240, 28%, 95%);
+  --color-border: hsl(240, 5.56%, 48.1%);
+}
+
+[data-theme="dark"] {
+  --color-primary: hsl(13, 88%, 58%);
+  --color-secondary: hsl(240, 20%, 24%);
+  --color-text: hsl(240, 25%, 87%);
+  --color-text-offset: hsl(240, 10%, 60%);
+  --color-background: hsl(240, 27%, 14%);
+  --color-background-offset: hsl(240, 28%, 19%);
+  --color-border: hsl(240, 20%, 24%);
+}

@@ -1,6 +1,5 @@
 ---
 import { Icon } from "astro-icon/components";
-import ThemeSwitcher from "~/components/theme-switcher.astro";
 import type { NavItem } from "~/types";
 
 const navItems: Array<NavItem> = [
@@ -28,7 +27,6 @@ const navItems: Array<NavItem> = [
               <li>
                 <a class={`text-sm ${title === "Login" ? 'font-bold text-primary' : ''}`} href={url}>
                   {title}
-                  {title === "Login" && <Icon name="mdi:chevron-right" class="inline-block -ml-1 size-6" />} {/* Arrow icon */}
                 </a>
               </li>
             ))
@@ -47,7 +45,7 @@ const navItems: Array<NavItem> = [
         href="https://github.com/rekram1-node/vault-block" 
         target="_blank" 
         rel="noopener noreferrer" 
-        class="inline-flex items-center justify-center -ml-3"
+        class="inline-flex items-center justify-center"
       >
         <button
           id="github-button"
@@ -80,8 +78,9 @@ const navItems: Array<NavItem> = [
               {
                 navItems.map(({ title, url }) => (
                   <li>
-                    <a class="block py-4 text-center text-xl" href={url}>
+                    <a class={`block py-4 text-center text-xl ${title === "Login" ? 'font-bold text-primary' : ''}`} href={url}>
                       {title}
+                      {title === "Login" && <Icon name="mdi:chevron-right" class="inline-block -ml-1 size-6" />} {/* Arrow icon */}
                     </a>
                   </li>
                 ))

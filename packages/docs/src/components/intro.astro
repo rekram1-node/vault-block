@@ -4,13 +4,12 @@ import ContentSection from "~/components/content-section.astro";
 ---
 
 <ContentSection title="Ultimate Encryption, Seamless Integration" id="intro" titleWrap={true}>
-  <Icon slot="eyebrow" name="logo" class="size-32" />
+  <Icon slot="eyebrow" name="logo" class="size-28" />
   <Fragment slot="lead">
     Experience the power of <span class="text-primary">end-to-end encryption</span> 
     while seamlessly integrating with <span class="text-primary">Notion</span>.
-    Your vaults, your control—anywhere, anytime.
   </Fragment>
-  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+  <div class="md:grid grid-cols-1 gap-2 sm:grid-cols-2 hidden">
     <a
       href="#features"
       class="flex items-center justify-center gap-3 border-2 border-current px-6 py-4"

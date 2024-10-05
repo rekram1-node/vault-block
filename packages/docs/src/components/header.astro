@@ -11,12 +11,12 @@ const navItems: Array<NavItem> = [
 
 <header
   id="page-header"
-  class="absolute bottom-0 z-20 flex w-full items-center justify-between border-b border-transparent px-8 py-4 text-white"
+  class="fixed top-0 z-20 flex w-full items-center justify-between border-b border-transparent px-8 py-4 text-white bg-default"
 >
-  <a class="flex items-center hover:!text-default" href="#">
+  <a class="flex items-center hover:!text-default">
     <h1 class="sr-only">Vault Block</h1>
-    <Icon name="logo" class="size-16"   style="vertical-align: baseline;"/>
-    <Icon name="wordmark" class="hidden h-4 sm:block -ml-4"  style="vertical-align: baseline;" />
+    <Icon name="logo" class="size-16" style="vertical-align: baseline;"/>
+    <Icon name="wordmark" class="hidden h-4 sm:block -ml-4" style="vertical-align: baseline;" />
   </a>
   <div>
     <div class="flex items-center gap-6">
@@ -143,7 +143,7 @@ const navItems: Array<NavItem> = [
 
 <style>
   .fixed-header {
-    @apply fixed bottom-auto top-0;
+    @apply fixed top-0; /* Fixes the navbar at the top */
     @apply border-default bg-default text-default;
   }
   .modal.is-open {

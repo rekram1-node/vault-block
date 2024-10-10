@@ -1,18 +1,18 @@
 import { showRoutes } from "hono/dev";
 import { handle } from "hono/cloudflare-pages";
-import { authMiddleware, authRouter } from "functions/api/authRouter";
-import { factory } from "functions/api/hono";
-import { userRouter } from "./userRouter";
-import { vaultRouter } from "./vaultRouter";
+import { authMiddleware, authRouter } from "functions/src/routes/authRouter";
+import { factory } from "functions/src/hono/hono";
+import { userRouter } from "../src/routes/userRouter";
+import { vaultRouter } from "../src/routes/vaultRouter";
 
 const app = factory.createApp().basePath("/api");
 
 const appRouter = app
-  .use("/user/*", authMiddleware)
-
   .route("/auth", authRouter)
-  .route("/user", userRouter)
-  .route("/vaults", vaultRouter);
+  .route("/vaults", vaultRouter)
+
+  .use("/user/*", authMiddleware)
+  .route("/user", userRouter);
 
 showRoutes(app);
 

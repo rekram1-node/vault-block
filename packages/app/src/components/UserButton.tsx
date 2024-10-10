@@ -8,7 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import React from "react";
-import { noAuthApi } from "~/lib/query";
+import { oauthApi } from "~/lib/api/api";
+import { useAuthProvider } from "./auth/AuthProviderv2";
 
 // export function UserButton() {
 //   const [isOpen, setIsOpen] = useState(false);
@@ -60,6 +61,8 @@ import { noAuthApi } from "~/lib/query";
 // }
 
 export function UserButton() {
+  const authProvider = useAuthProvider();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="bg-transparent">
@@ -92,8 +95,9 @@ export function UserButton() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={async () => {
-            await noAuthApi.auth.logout.$post();
+            await oauthApi.auth.logout.$post();
             window.location.href = "/auth/sign-in";
+            authProvider.setLoggedOut();
           }}
         >
           Logout

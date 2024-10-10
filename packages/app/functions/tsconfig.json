@@ -4,6 +4,7 @@
         "./api/**/*",
         "./src/**/*",
         "../shared/**/*",
+        "types",
     ],
     "compilerOptions": {
         "composite": true,
@@ -17,7 +18,7 @@
             "ESNext"
         ],
         "types": [
-            "@cloudflare/workers-types"
-        ],
+            "@cloudflare/workers-types",
+         ],
     }
 }

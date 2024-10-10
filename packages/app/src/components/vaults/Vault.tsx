@@ -2,7 +2,7 @@ import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
 import { useMutation } from "~/hooks/useMutation";
-import { api, keys, queryClient } from "~/lib/query";
+import { oauthApi, keys, queryClient } from "~/lib/api/api";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ import { type Page } from "shared/types/Page";
 import { formatToLocalDateTime } from "shared/lib/time";
 import { useState } from "react";
 import { InitializeVault } from "./InitializeVault";
+import React from "react";
 
 type Props = {
   id: string;
@@ -48,7 +49,7 @@ export function Vault({
 
   const url = new URL(window.location.href);
   const link = `${url.origin}/vaults/${id}`;
-  const $delete = api.user.vaults[":vaultId"].$delete;
+  const $delete = oauthApi.user.vaults[":vaultId"].$delete;
 
   const { mutate: deleteVault } = useMutation($delete)({
     mutationKey: keys.vaults,
@@ -102,16 +103,18 @@ export function Vault({
                   <div className="pr-2">Copy Link</div>
                   <CopyIcon size={18} />
                 </DropdownMenuItem>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
-                    <div className="pr-2">Add to Notion</div>
-                  </DropdownMenuSubTrigger>
-                  <ListNotionPages
-                    pages={notionPages}
-                    isLoading={isNotionPagesLoading}
-                    vaultId={id}
-                  />
-                </DropdownMenuSub>
+                {notionPages?.length !== 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <div className="pr-2">Add to Notion</div>
+                    </DropdownMenuSubTrigger>
+                    <ListNotionPages
+                      pages={notionPages}
+                      isLoading={isNotionPagesLoading}
+                      vaultId={id}
+                    />
+                  </DropdownMenuSub>
+                )}
 
                 <DropdownMenuItem
                   className="flex items-center justify-between"

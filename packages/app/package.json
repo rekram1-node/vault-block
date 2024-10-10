@@ -1,24 +1,25 @@
 {
-  "name": "vault-block",
+  "name": "vault-block-app",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "cp node_modules/argon2-browser/dist/argon2-bundled.min.js public/argon2-bundled.min.js",
     "build": "vite build",
+    "lint": "bunx eslint --fix",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "deploy": "wrangler pages deploy",
-    "dev:db": "turso dev --db-file local.db",
-    "dev:server": "vite build && wrangler pages dev --port 3001 --live-reload --kv VAULT_BLOCK --persist-to .wrangler/state",
+    "dev:server": "vite build && wrangler pages dev --port 3001 --live-reload --local --kv VAULT_BLOCK_KV --persist-to .wrangler/state",
     "dev:web": "vite",
-    "dev": "goreman -exit-on-error start"
+    "dev": "goreman -exit-on-error start",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv functions/types/cloudflare-env.d.ts"
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20240821.1",
     "@hono/zod-validator": "^0.2.2",
     "@hookform/resolvers": "^3.9.0",
-    "@libsql/client": "^0.5.6",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.1",
@@ -34,14 +35,12 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tailwindcss/typography": "^0.5.12",
     "@tanstack/react-query": "^5.52.2",
-    "@tsndr/cloudflare-worker-jwt": "^2.5.3",
-    "argon2": "^0.31.2",
+    "arctic": "^1.9.2",
     "argon2-browser": "^1.18.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "drizzle-orm": "^0.31.2",
-    "hono": "^4.5.6",
-    "ky": "^1.7.1",
+    "hono": "^4.6.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.368.0",
     "novel": "^0.2.13",
@@ -52,6 +51,7 @@
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
+    "vite-plugin-wasm": "^3.3.0",
     "vite-tsconfig-paths": "^5.0.1",
     "wouter": "^3.3.1",
     "zod": "^3.23.8",
@@ -77,10 +77,6 @@
     "tsx": "^4.7.0",
     "typescript": "^5.1.6",
     "vite": "^5.4.2",
-    "wrangler": "^3.72.1"
-  },
-  "ct3aMetadata": {
-    "initVersion": "7.26.0"
-  },
-  "packageManager": "npm@10.1.0"
+    "wrangler": "^3.80.2"
+  }
 }

@@ -1,46 +1,31 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
 
 import { SyncNotionAlert } from "~/components/vaults/SyncNotionAlert";
 import ListVaults from "~/components/vaults/ListVaults";
-import { useAuth } from "~/hooks/useAuth";
-import { api } from "~/lib/query";
-import { isErrorResponse } from "shared/types/ErrorResponse";
+import { useNotionPagesQuery } from "~/lib/api/userApi";
+import { useAuthProvider } from "~/components/auth/AuthProviderv2";
 
 export function Home() {
-  const { newSignup } = useAuth();
+  const authProvider = useAuthProvider();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (newSignup) {
+    if (authProvider.newSignup) {
       setIsOpen(true);
     }
-  }, [newSignup]);
+  }, [authProvider.newSignup]);
 
   const {
     data: notionPages,
     isLoading: isGetNotionPagesLoading,
     error,
     isError,
-  } = useQuery({
-    queryKey: [],
-    queryFn: async () => {
-      const res = await api.user.notion.$get();
-      if (res.ok) {
-        return await res.json();
-      } else {
-        const d = await res.json();
-        if (isErrorResponse(d)) {
-          return Promise.reject(d);
-        }
-      }
-    },
-  });
+  } = useNotionPagesQuery();
 
   useEffect(() => {
     if (isError) {
-      toast.error("Failed to read notion pages:" + error.message);
+      toast.error("Failed to read notion pages: " + error.message);
     }
   }, [error, isError]);
 
@@ -50,7 +35,11 @@ export function Home() {
         title="Welcome to Vault Block"
         description="Thank you for signing up. We're excited to have you on board!"
         isOpen={isOpen}
-        setIsOpen={setIsOpen}
+        setIsOpen={(value: boolean) => {
+          // once they close the modal, set as false
+          authProvider.setNewSignup(false);
+          setIsOpen(value);
+        }}
         notionPages={notionPages}
         isGetNotionPagesLoading={isGetNotionPagesLoading}
       />

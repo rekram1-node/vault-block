@@ -1,5 +1,3 @@
-MAX_PAGES=5
-
 TURSO_DATABASE_URL='libsql://<your url>.turso.io'
 TURSO_AUTH_TOKEN='<your auth token here>'
 

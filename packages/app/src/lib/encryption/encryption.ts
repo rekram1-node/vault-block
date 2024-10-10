@@ -1,5 +1,4 @@
 import argon2 from "argon2-browser/dist/argon2-bundled.min.js";
-// import * as argon2 from "argon2-browser";
 
 export function createSalt(size = 16) {
   return crypto.getRandomValues(new Uint8Array(size));

@@ -1,36 +1,47 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Redirect, Route } from "wouter";
-import { useAuth } from "src/hooks/useAuth";
+import React, { useEffect } from "react";
+import { oauthApi } from "~/lib/api/api";
+import { toast } from "sonner";
+import { useMutation } from "~/hooks/useMutation";
+import { LinearProgress } from "./LinearProgress";
+import { useAuthProvider } from "./auth/AuthProviderv2";
 
 export function ProtectedRoute({
-  path,
+  // path,
   children,
 }: {
-  path: string;
+  // path: string;
   children: React.ReactNode;
 }) {
-  const [redirect, setRedirect] = useState(false);
-  const { accessToken, refreshAccessToken } = useAuth();
-  const fetchCalled = useRef(false);
+  const auth = useAuthProvider();
+
+  const $status = oauthApi.auth.status.$get;
+  const { mutate } = useMutation($status)({
+    mutationKey: [],
+    mutationFn: async () => {
+      await $status();
+      return {};
+    },
+    onSuccess: () => {
+      auth.setSignedIn();
+    },
+    onError(error, _variables, _context) {
+      // this needs to go to error page or something...
+      toast.error("Failed to check auth status: " + error.message);
+    },
+  });
 
   useEffect(() => {
-    if (!accessToken) {
-      setRedirect(false);
-    }
-    if (accessToken) return;
-    const fetch = async () => {
-      fetchCalled.current = true;
-      const token = await refreshAccessToken();
-      if (!token) {
-        setRedirect(true);
-      }
-    };
-    void fetch();
-  }, [accessToken]);
+    if (auth.signedIn) return;
+    mutate({});
+  }, [auth.signedIn]);
 
-  if (redirect) {
-    return <Redirect to="/auth/sign-in" />;
+  if (!auth.signedIn) {
+    return (
+      <div className="min-h-screen">
+        <LinearProgress />
+      </div>
+    );
   }
 
-  return <Route path={path}>{children}</Route>;
+  return <>{children}</>;
 }

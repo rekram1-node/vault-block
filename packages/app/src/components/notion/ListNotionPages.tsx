@@ -1,8 +1,9 @@
+import React from "react";
 import { toast } from "sonner";
 import { useState } from "react";
 
 import { useMutation } from "~/hooks/useMutation";
-import { api } from "~/lib/query";
+import { oauthApi } from "~/lib/api/api";
 import { type Page } from "shared/types/Page";
 import {
   DropdownMenuItem,
@@ -17,7 +18,7 @@ import { LoadingSpinner } from "../Loading";
 
 function NotionPage({ page, vaultId }: { page: Page; vaultId: string }) {
   const [isClickable, setIsClickable] = useState(true);
-  const $addToNotion = api.user.notion[":vaultId"][":pageId"].$post;
+  const $addToNotion = oauthApi.user.notion[":vaultId"][":pageId"].$post;
 
   const { mutate, isPending } = useMutation($addToNotion)({
     mutationKey: [],
@@ -104,7 +105,6 @@ export function ListNotionPages({ pages, isLoading, vaultId }: Props) {
           : itemsToDisplay?.map((page) => (
               <NotionPage page={page} vaultId={vaultId} key={page.id} />
             ))}
-
         {!isExpanded && numPages > 3 && (
           <>
             <DropdownMenuSeparator />

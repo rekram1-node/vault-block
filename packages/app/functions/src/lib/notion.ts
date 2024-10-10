@@ -1,8 +1,8 @@
 import { type SearchPagesResponse } from "functions/src/types/notionSearchPagesResponse";
-import { ok, error } from "shared/types/result";
+import { Ok, Err } from "shared/types/result";
 import { type Page } from "shared/types/Page";
-import { api } from "shared/lib/api";
-import { type Context } from "functions/api/hono";
+import { req } from "shared/lib/req";
+import { type Context } from "functions/src/hono/hono";
 
 export class Notion {
   embeddedBaseUrl: string;
@@ -13,7 +13,7 @@ export class Notion {
     this.baseUrl + `/blocks/${pageId}/children`;
 
   constructor(c: Context) {
-    const token = c.var.jwtPayload.token;
+    const token = c.var.session.notionToken;
     this.headers = {
       Authorization: `Bearer ${token}`,
       "Notion-Version": c.env.NOTION_API_VERSION ?? "2022-06-28",
@@ -30,13 +30,13 @@ export class Notion {
   async ReadPages() {
     try {
       const url = this.baseUrl + "/search";
-      const response = await api<SearchPagesResponse>(url, {
+      const response = await req<SearchPagesResponse>(url, {
         method: "POST",
         body: `{"filter":{"value":"page","property":"object"},"sort":{"direction":"ascending","timestamp":"last_edited_time"}}`,
         headers: this.headers,
       });
-      if (!response.isOk) {
-        return error(
+      if (!response.ok) {
+        return Err(
           new Error("failed to retrieve pages", { cause: response.error }),
         );
       }
@@ -59,9 +59,11 @@ export class Notion {
         });
       }
 
-      return ok(pages);
+      return Ok(pages);
     } catch (e) {
-      return error(new Error(`failed to read pages`, { cause: e }));
+      return Err(
+        new Error(`failed to read pages: ${JSON.stringify(e)}`, { cause: e }),
+      );
     }
   }
 
@@ -69,16 +71,16 @@ export class Notion {
     const embeddedUrl = this.embeddedBaseUrl + `/vaults/${vaultId}`;
     const body = `{"children":[{"object":"block","type":"embed","embed":{"url":"${embeddedUrl}"}}]}`;
     const url = this.appendToPageUrl(notionPageId);
-    const response = await api<never>(url, {
+    const response = await req<never>(url, {
       method: "PATCH",
       body,
       headers: this.headers,
     });
-    if (!response.isOk) {
-      return error(
+    if (!response.ok) {
+      return Err(
         new Error("failed to append to block", { cause: response.error }),
       );
     }
-    return ok();
+    return Ok();
   }
 }

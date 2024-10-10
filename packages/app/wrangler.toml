@@ -85,6 +85,7 @@ migrations_dir = "functions/src/db/migrations"
 [env.preview.vars]
 ### never put secrets here ###
 VITE_MAX_VAULTS = 5
+NOTION_API_VERSION = "2022-06-28"
 
 [[env.preview.kv_namespaces]]
 binding = "VAULT_BLOCK_KV"
@@ -101,6 +102,7 @@ migrations_dir = "functions/src/db/migrations"
 [env.production.vars]
 ### never put secrets here ###
 VITE_MAX_VAULTS = 5
+NOTION_API_VERSION = "2022-06-28"
 
 [[env.production.kv_namespaces]]
 binding = "VAULT_BLOCK_KV"

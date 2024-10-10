@@ -8,13 +8,7 @@ import { useAuthProvider } from "~/components/auth/AuthProviderv2";
 
 export function Home() {
   const authProvider = useAuthProvider();
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (authProvider.newSignup) {
-      setIsOpen(true);
-    }
-  }, [authProvider.newSignup]);
+  const [isOpen, setIsOpen] = useState(authProvider.newSignup);
 
   const {
     data: notionPages,

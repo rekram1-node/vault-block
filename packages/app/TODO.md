@@ -8,4 +8,4 @@
 ## DB Migrations
 * Locally (write cmd line automation that will loop over migrations): wrangler d1 execute DB --local --file functions/src/db/migrations/0001_tired_sally_floyd.sql 
 * Migrations are so bad on D1 - they will cause temporary outages (currently)
-
+* bunx wrangler d1 migrations list vault-block-dev --env preview

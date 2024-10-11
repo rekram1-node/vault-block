@@ -19,7 +19,7 @@ export async function req<T>(
     });
   } catch (e) {
     return Err(
-      new Error(`failed to process request: ${JSON.stringify(e)}`, {
+      new Error(`Failed to process request`, {
         cause: e,
       }),
     );

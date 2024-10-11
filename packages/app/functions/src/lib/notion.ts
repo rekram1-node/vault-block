@@ -37,7 +37,7 @@ export class Notion {
       });
       if (!response.ok) {
         return Err(
-          new Error("failed to retrieve pages", { cause: response.error }),
+          new Error("Failed to retrieve pages", { cause: response.error }),
         );
       }
 
@@ -61,9 +61,7 @@ export class Notion {
 
       return Ok(pages);
     } catch (e) {
-      return Err(
-        new Error(`failed to read pages: ${JSON.stringify(e)}`, { cause: e }),
-      );
+      return Err(new Error(`Failed to read pages`, { cause: e }));
     }
   }
 
@@ -78,7 +76,10 @@ export class Notion {
     });
     if (!response.ok) {
       return Err(
-        new Error("failed to append to block", { cause: response.error }),
+        new Error(
+          `Failed to append vault [${vaultId}] to block [${notionPageId}]`,
+          { cause: response.error },
+        ),
       );
     }
     return Ok();

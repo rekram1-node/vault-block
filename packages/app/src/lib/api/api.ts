@@ -2,6 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { type AppType } from "functions/api/[[route]]";
 import { hc } from "hono/client";
 import { isErrorResponse } from "shared/types/ErrorResponse";
+import { authStore } from "~/components/auth/AuthProviderv2";
 
 const unauthedApi = hc<AppType>("/", {
   fetch: async (input: RequestInfo | URL, requestInit?: RequestInit) => {
@@ -16,6 +17,11 @@ const unauthedApi = hc<AppType>("/", {
       headers,
       body: requestInit?.body,
     });
+
+    if (response.redirected) {
+      window.location.href = response.url;
+      return new Response(null);
+    }
 
     if (!response.ok) {
       const err = await response.json();
@@ -43,7 +49,7 @@ class HttpError extends Error {
   }
 }
 
-const oauthClient = hc<AppType>("/", {
+const authedApiClient = hc<AppType>("/", {
   fetch: async (input: RequestInfo | URL, requestInit?: RequestInit) => {
     const fetchWithAuth = async () => {
       const headers = {
@@ -65,6 +71,7 @@ const oauthClient = hc<AppType>("/", {
 
     if (response.status === 401) {
       window.location.assign("/auth/sign-in");
+      authStore.getState().setLoggedOut();
       return response;
     }
 
@@ -84,8 +91,8 @@ const oauthClient = hc<AppType>("/", {
   },
 });
 
-export const oauthApi = oauthClient.api;
-export const api = unauthedApi.api;
+export const authedApi = authedApiClient.api;
+export const publicApi = unauthedApi.api;
 
 const http_status_no_retry = [400, 401, 403, 404, 302];
 

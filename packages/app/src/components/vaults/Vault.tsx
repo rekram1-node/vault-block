@@ -2,7 +2,7 @@ import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
 import { useMutation } from "~/hooks/useMutation";
-import { oauthApi, keys, queryClient } from "~/lib/api/api";
+import { authedApi, keys, queryClient } from "~/lib/api/api";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -49,7 +49,7 @@ export function Vault({
 
   const url = new URL(window.location.href);
   const link = `${url.origin}/vaults/${id}`;
-  const $delete = oauthApi.user.vaults[":vaultId"].$delete;
+  const $delete = authedApi.user.vaults[":vaultId"].$delete;
 
   const { mutate: deleteVault } = useMutation($delete)({
     mutationKey: keys.vaults,

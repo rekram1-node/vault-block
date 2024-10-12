@@ -9,7 +9,7 @@ import {
 } from "~/components/ui/card";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useMutation } from "~/hooks/useMutation";
-import { oauthApi, keys, queryClient } from "~/lib/api/api";
+import { authedApi, keys, queryClient } from "~/lib/api/api";
 import { isErrorResponse } from "shared/types/ErrorResponse";
 import { toast } from "sonner";
 import { Skeleton } from "../ui/skeleton";
@@ -36,7 +36,7 @@ export function SyncNotion({
   const allowed = MAX_VAULTS - (numVaults ?? 0);
   const max = MAX_VAULTS + (numVaults ?? 0);
   const [selectedPages, setSelectedPages] = useState<Page[]>([]);
-  const $sync = oauthApi.user.notion.$post;
+  const $sync = authedApi.user.notion.$post;
 
   const { mutate } = useMutation($sync)({
     mutationKey: keys.vaults,

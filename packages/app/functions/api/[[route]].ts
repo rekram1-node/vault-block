@@ -8,10 +8,10 @@ import { vaultRouter } from "../src/routes/vaultRouter";
 const app = factory.createApp().basePath("/api");
 
 const appRouter = app
+  .use("/user/*", authMiddleware)
+
   .route("/auth", authRouter)
   .route("/vaults", vaultRouter)
-
-  .use("/user/*", authMiddleware)
   .route("/user", userRouter);
 
 showRoutes(app);

@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import React, { useEffect } from "react";
-import { api } from "~/lib/api/api";
+import { publicApi } from "~/lib/api/api";
 import { useQuery } from "@tanstack/react-query";
 import { LinearProgress } from "../LinearProgress";
 import { useAuthProvider } from "./AuthProviderv2";
@@ -15,7 +15,11 @@ export function Callback() {
   const { data, isError } = useQuery({
     queryKey: [],
     queryFn: async () => {
-      const res = await api.auth.login.$post({ query: { code } });
+      const res = await publicApi.auth.login.$post({ query: { code } });
+      if (res.status === 302) {
+        authProvider.setSignedIn();
+        return undefined;
+      }
       return await res.json();
     },
     enabled: !!code, // Ensures the query only runs if a code is present

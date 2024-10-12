@@ -45,6 +45,13 @@ function getRedirectUri(c: Context) {
 
 const auth = app
   .get("/notion", async (c) => {
+    const cookie = getCookie(c, SESSION_COOKIE);
+    if (cookie) {
+      const session = await validateSessionToken(c, cookie);
+      if (session) {
+        return c.redirect("/");
+      }
+    }
     const url = `${auth_url}?${new URLSearchParams({
       client_id: c.env.NOTION_CLIENT_ID,
       redirect_uri: getRedirectUri(c),

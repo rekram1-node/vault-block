@@ -8,57 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import React from "react";
-import { oauthApi } from "~/lib/api/api";
+import { authedApi } from "~/lib/api/api";
 import { useAuthProvider } from "./auth/AuthProviderv2";
-
-// export function UserButton() {
-//   const [isOpen, setIsOpen] = useState(false);
-//   const dropdownRef = useRef<HTMLDivElement>(null);
-
-//   const handleClickOutside = (event: MouseEvent) => {
-//     if (
-//       dropdownRef.current &&
-//       !dropdownRef.current.contains(event.target as Node)
-//     ) {
-//       setIsOpen(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (isOpen) {
-//       document.addEventListener("mousedown", handleClickOutside);
-//     } else {
-//       document.removeEventListener("mousedown", handleClickOutside);
-//     }
-//     return () => {
-//       document.removeEventListener("mousedown", handleClickOutside);
-//     };
-//   }, [isOpen]);
-
-//   return (
-//     <div className="relative" ref={dropdownRef}>
-//       <button
-//         className="rounded-full bg-card p-2 text-card-foreground focus:outline-none"
-//         onClick={() => setIsOpen(!isOpen)}
-//       >
-
-//       </button>
-
-//       {isOpen && (
-//         <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg bg-card text-card-foreground shadow-lg">
-//           <div className="py-1">
-//             <button
-
-//               className="block w-full rounded-lg px-4 py-2 text-left text-sm hover:bg-primary hover:text-primary-foreground focus:outline-none"
-//             >
-//               Logout
-//             </button>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
 
 export function UserButton() {
   const authProvider = useAuthProvider();
@@ -95,7 +46,7 @@ export function UserButton() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={async () => {
-            await oauthApi.auth.logout.$post();
+            await authedApi.auth.logout.$post();
             window.location.href = "/auth/sign-in";
             authProvider.setLoggedOut();
           }}

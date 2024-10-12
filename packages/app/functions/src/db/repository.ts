@@ -35,9 +35,8 @@ export class Repository {
         .get();
       return Ok(result);
     } catch (e) {
-      const err = JSON.stringify(e);
-      console.error(`Failed to create user: ${err}`);
-      return Err(new Error(`failed to create user: ${err}`, { cause: e }));
+      console.error(`Failed to create user [${data.id}]:`, e);
+      return Err(new Error(`Failed to create user [${data.id}]`, { cause: e }));
     }
   }
 
@@ -50,8 +49,8 @@ export class Repository {
         .get();
       return Ok(result);
     } catch (e) {
-      console.error(`Failed to read user with ID ${id}:`, e);
-      return Err(new Error(`Failed to read user with ID ${id}`, { cause: e }));
+      console.error(`Failed to read user [${id}]:`, e);
+      return Err(new Error(`Failed to read user [${id}]`, { cause: e }));
     }
   }
 
@@ -64,9 +63,11 @@ export class Repository {
         .get();
       return Ok(result);
     } catch (e) {
-      const err = JSON.stringify(e);
-      console.error(`Failed to create vault: ${err}`);
-      return Err(new Error(`failed to create vault: ${err}`, { cause: e }));
+      console.error(
+        `Failed to create vault [${data.name}] for user [${data.userId}]:`,
+        e,
+      );
+      return Err(new Error(`Failed to create vault`, { cause: e }));
     }
   }
 
@@ -85,9 +86,8 @@ export class Repository {
         .get();
       return Ok(result);
     } catch (e) {
-      const err = JSON.stringify(e);
-      console.error(`Failed to activate vault: ${err}`);
-      return Err(new Error(`failed to activate vault: ${err}`, { cause: e }));
+      console.error(`Failed to activate vault [${id}]:`, e);
+      return Err(new Error(`Failed to activate vault`, { cause: e }));
     }
   }
 
@@ -107,9 +107,8 @@ export class Repository {
         .all();
       return Ok(result);
     } catch (e) {
-      const err = JSON.stringify(e);
-      console.error(`Failed to read vaults: ${err}`);
-      return Err(new Error(`failed to read vaults: ${err}`, { cause: e }));
+      console.error(`Failed to read vaults [${userId}]:`, e);
+      return Err(new Error(`Failed to read vaults`, { cause: e }));
     }
   }
 
@@ -125,11 +124,8 @@ export class Repository {
 
       return Ok(result?.value ?? 0);
     } catch (e) {
-      const err = JSON.stringify(e);
-      console.error(`Failed to read number of vaults: ${err}`);
-      return Err(
-        new Error(`failed to read number of vaults: ${err}`, { cause: e }),
-      );
+      console.error(`Failed to read number of vaults [${userId}]:`, e);
+      return Err(new Error(`Failed to read number of vaults`, { cause: e }));
     }
   }
 
@@ -151,9 +147,8 @@ export class Repository {
 
       return Ok(result);
     } catch (e) {
-      const err = JSON.stringify(e);
-      console.error(`Failed to read vault ${err}`);
-      return Err(new Error(`failed to read vault: ${err}`, { cause: e }));
+      console.error(`Failed to read vault [${id}]:`, e);
+      return Err(new Error(`Failed to read vault`, { cause: e }));
     }
   }
 
@@ -169,10 +164,9 @@ export class Repository {
       if (!result) throw new VaultNotFoundError();
       return Ok(result);
     } catch (e) {
-      const err = JSON.stringify(e);
-      console.error(`Failed to read vault data ${err}`);
+      console.error(`Failed to read vault data [${id}]:`, e);
       return Err(
-        new Error(`failed to read vault data: ${err}`, {
+        new Error(`Failed to read vault data`, {
           cause: e,
         }),
       );
@@ -186,9 +180,8 @@ export class Repository {
         .where(and(eq(vaultsTable.id, id), eq(vaultsTable.userId, userId)));
       return Ok(result);
     } catch (e) {
-      const err = JSON.stringify(e);
-      console.error(`Failed to delete vault ${err}`);
-      return Err(new Error(`failed to delete vault: ${err}`, { cause: e }));
+      console.error(`Failed to delete vault [${id}] for user [${userId}]:`, e);
+      return Err(new Error(`Failed to delete vault`, { cause: e }));
     }
   }
 
@@ -202,9 +195,8 @@ export class Repository {
         .where(eq(vaultsTable.id, id));
       return Ok(result);
     } catch (e) {
-      const err = JSON.stringify(e);
-      console.error(`Failed to update vault ${err}`);
-      return Err(new Error(`failed to update vault: ${err}`, { cause: e }));
+      console.error(`Failed to update vault [${id}]:`, e);
+      return Err(new Error(`Failed to update vault`, { cause: e }));
     }
   }
 }

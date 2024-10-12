@@ -12,32 +12,28 @@ interface AuthProviderValue {
 
 const Context = React.createContext<AuthProviderValue | null>(null);
 
-const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const useStore = React.useMemo(
-    () =>
-      create<AuthProviderValue>((set) => ({
-        signedIn: false,
-        newSignup: false,
-        setSignedIn(newSignup) {
-          set({
-            signedIn: true,
-            newSignup,
-          });
-        },
-        setNewSignup(newSignup) {
-          set({ newSignup });
-        },
-        setLoggedOut() {
-          set({
-            signedIn: false,
-            newSignup: false,
-          });
-        },
-      })),
-    [],
-  );
+const authStore = create<AuthProviderValue>((set) => ({
+  signedIn: false,
+  newSignup: false,
+  setSignedIn(newSignup) {
+    set({
+      signedIn: true,
+      newSignup,
+    });
+  },
+  setNewSignup(newSignup) {
+    set({ newSignup });
+  },
+  setLoggedOut() {
+    set({
+      signedIn: false,
+      newSignup: false,
+    });
+  },
+}));
 
-  const store = useStore();
+const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const store = authStore();
 
   return <Context.Provider value={store}>{children}</Context.Provider>;
 };
@@ -50,4 +46,4 @@ const useAuthProvider = (): AuthProviderValue => {
   return ctx;
 };
 
-export { AuthProvider, useAuthProvider };
+export { AuthProvider, useAuthProvider, authStore };

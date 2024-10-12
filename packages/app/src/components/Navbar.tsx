@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ThemeToggle } from "~/components/novel/ThemeToggle";
+// import { ThemeToggle } from "~/components/novel/ThemeToggle";
 import { UserButton } from "~/components/UserButton";
 import { useTheme } from "./ThemeProvider";
 
@@ -21,7 +21,7 @@ const Navbar = () => {
         </Link>
       </div>
       <div className="flex items-center space-x-5">
-        <ThemeToggle />
+        {/* <ThemeToggle /> */}
         <UserButton />
       </div>
     </nav>

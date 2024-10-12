@@ -8,11 +8,11 @@ import { createPatch } from "rfc6902";
 import { PasswordForm } from "~/components/vaults/PasswordForm";
 import Editor from "~/components/novel/Editor";
 import { usePublicVault } from "~/hooks/usePublicVault";
-import { ThemeToggle } from "~/components/novel/ThemeToggle";
+// import { ThemeToggle } from "~/components/novel/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { decryptTextBlocks, encryptOperationArray } from "~/lib/workerPool";
 import { useMutation } from "~/hooks/useMutation";
-import { api } from "~/lib/api/api";
+import { publicApi } from "~/lib/api/api";
 import { isErrorResponse } from "shared/types/ErrorResponse";
 
 // TODO: add auto lock after inactivity (30 min?)
@@ -24,7 +24,7 @@ export function VaultPage() {
   const [isLocked, setIsLocked] = useState(true);
   const [decrypted, setDecrypted] = useState<JSONContent | undefined>();
 
-  const $update = api.vaults[":vaultId"].content.$post;
+  const $update = publicApi.vaults[":vaultId"].content.$post;
   const { mutate } = useMutation($update)({
     mutationFn: async (args) => {
       const res = await $update(args);
@@ -95,7 +95,7 @@ export function VaultPage() {
           <div className="mb-6 flex w-full items-center justify-between">
             <h1 className="text-xl font-bold">{name}</h1>
             <div className="flex items-center space-x-2">
-              <ThemeToggle />
+              {/* <ThemeToggle /> */}
               <Button
                 variant="secondary"
                 size="icon"

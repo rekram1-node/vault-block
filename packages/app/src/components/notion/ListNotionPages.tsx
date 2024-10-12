@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 
 import { useMutation } from "~/hooks/useMutation";
-import { oauthApi } from "~/lib/api/api";
+import { authedApi } from "~/lib/api/api";
 import { type Page } from "shared/types/Page";
 import {
   DropdownMenuItem,
@@ -18,7 +18,7 @@ import { LoadingSpinner } from "../Loading";
 
 function NotionPage({ page, vaultId }: { page: Page; vaultId: string }) {
   const [isClickable, setIsClickable] = useState(true);
-  const $addToNotion = oauthApi.user.notion[":vaultId"][":pageId"].$post;
+  const $addToNotion = authedApi.user.notion[":vaultId"][":pageId"].$post;
 
   const { mutate, isPending } = useMutation($addToNotion)({
     mutationKey: [],

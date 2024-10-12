@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { oauthApi } from "~/lib/api/api";
+import { authedApi } from "~/lib/api/api";
 import { toast } from "sonner";
 import { useMutation } from "~/hooks/useMutation";
 import { LinearProgress } from "./LinearProgress";
@@ -14,7 +14,7 @@ export function ProtectedRoute({
 }) {
   const auth = useAuthProvider();
 
-  const $status = oauthApi.auth.status.$get;
+  const $status = authedApi.auth.status.$get;
   const { mutate } = useMutation($status)({
     mutationKey: [],
     mutationFn: async () => {
